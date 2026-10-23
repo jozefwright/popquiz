@@ -1,0 +1,8 @@
+# Not served from play.popquiz.fun (deploy/play/wrangler.jsonc).
+api/
+.vercelignore
+vercel.json
+package.json
+.gitignore
+.assetsignore
+_headers.README

@@ -1,0 +1,265 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#fff6dc" />
+    <meta name="robots" content="noindex" />
+    <title>Get Pop Quiz</title>
+    <link rel="icon" href="/icons/32.png" />
+    <style>
+      @import url('/vendor/fonts.css');
+      :root {
+        --display: 'Bricolage Grotesque', system-ui, -apple-system, sans-serif;
+        --body: 'Figtree', system-ui, -apple-system, sans-serif;
+        --bg: #fff6dc;
+        --ink: #1a1a1a;
+        --soft: #5a5244;
+        --accent: #f9ab00;
+        --card: #ffffff;
+        --hair: #e6dcc0;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--ink);
+        font: 400 17px/1.6 var(--body);
+        -webkit-font-smoothing: antialiased;
+      }
+      main {
+        max-width: 720px;
+        margin: 0 auto;
+        padding: 48px 20px 72px;
+      }
+      .lockup {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font: 800 22px/1 var(--display);
+      }
+      .lockup img {
+        width: 44px;
+        height: 44px;
+      }
+      .lockup small {
+        font: 600 13px/1 var(--body);
+        color: var(--soft);
+      }
+      h1 {
+        font-family: var(--display);
+        margin: 28px 0 14px;
+        font-size: clamp(34px, 7vw, 52px);
+        font-weight: 800;
+        line-height: 1.02;
+        letter-spacing: -0.02em;
+      }
+      .lead {
+        margin: 0 0 8px;
+        font-size: 19px;
+        color: var(--soft);
+      }
+      .needs {
+        margin: 0 0 36px;
+        font-size: 15px;
+        color: var(--soft);
+      }
+      ol.steps {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+        counter-reset: step;
+      }
+      ol.steps > li {
+        counter-increment: step;
+        position: relative;
+        padding: 22px 0 22px 52px;
+        border-top: 1.5px solid var(--hair);
+      }
+      ol.steps > li::before {
+        content: counter(step);
+        position: absolute;
+        left: 0;
+        top: 22px;
+        width: 34px;
+        height: 34px;
+        border-radius: 50%;
+        background: var(--accent);
+        border: 2px solid var(--ink);
+        box-shadow: 2px 2px 0 var(--ink);
+        color: var(--ink);
+        font: 800 16px/1 var(--display);
+        display: grid;
+        place-items: center;
+      }
+      h2 {
+        font-family: var(--display);
+        margin: 3px 0 6px;
+        font-size: 21px;
+        font-weight: 800;
+      }
+      h3 {
+        font-family: var(--display);
+        margin: 44px 0 8px;
+        font-size: 22px;
+        font-weight: 800;
+      }
+      p {
+        margin: 0 0 10px;
+      }
+      li p:last-child {
+        margin-bottom: 0;
+      }
+      b {
+        font-weight: 700;
+      }
+      code {
+        font: 500 0.9em ui-monospace, 'SF Mono', Menlo, monospace;
+        background: var(--card);
+        border: 1px solid var(--hair);
+        padding: 1px 6px;
+        border-radius: 5px;
+        white-space: nowrap;
+      }
+      .cmd {
+        display: flex;
+        align-items: stretch;
+        gap: 8px;
+        margin: 12px 0;
+      }
+      .cmd code {
+        flex: 1 1 auto;
+        min-width: 0;
+        padding: 13px 14px;
+        border-radius: 10px;
+        border: 2px solid var(--ink);
+        font-size: 13px;
+        line-height: 1.45;
+        white-space: nowrap;
+        overflow-x: auto;
+      }
+      .cmd button {
+        flex: 0 0 auto;
+        min-width: 80px;
+        padding: 0 16px;
+        border: 2px solid var(--ink);
+        border-radius: 10px;
+        background: var(--accent);
+        box-shadow: 3px 3px 0 var(--ink);
+        color: var(--ink);
+        font: 800 15px var(--display);
+        cursor: pointer;
+      }
+      .cmd button:active {
+        transform: translate(2px, 2px);
+        box-shadow: 1px 1px 0 var(--ink);
+      }
+      .cmd button:focus-visible {
+        outline: 3px solid var(--ink);
+        outline-offset: 3px;
+      }
+      ul.plain {
+        margin: 0;
+        padding: 0 0 0 20px;
+      }
+      ul.plain li {
+        margin-bottom: 8px;
+      }
+      .soft {
+        color: var(--soft);
+      }
+      footer {
+        margin-top: 48px;
+        padding-top: 20px;
+        border-top: 1.5px solid var(--hair);
+        font-size: 14px;
+        color: var(--soft);
+      }
+      footer p {
+        margin: 0 0 6px;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <div class="lockup">
+        <img src="/icons/mark.svg" alt="" />
+        <span>Pop Quiz <small>for Google Slides</small></span>
+      </div>
+      <h1>The team quiz that lives in your slides</h1>
+      <p class="lead">People answer on their phones. The votes, the clock and the leaderboard appear on your own slides, in your deck's design.</p>
+      <p class="needs">This is the early version, for testers. You need a Mac, Chrome and a Google Slides deck. Phones need nothing: they scan a code.</p>
+
+      <ol class="steps">
+        <li>
+          <h2>Fetch it</h2>
+          <p>Open Terminal and paste this. It puts Pop Quiz in a folder called <code>PopQuiz</code> in your home folder, and nowhere else.</p>
+          <div class="cmd">
+            <code id="c1" data-cmd=""></code>
+            <button type="button" data-copy="c1">Copy</button>
+          </div>
+        </li>
+        <li>
+          <h2>Load it in Chrome, once</h2>
+          <p>Open <code>chrome://extensions</code> in a new tab. Turn on <b>Developer mode</b>, top right. Press <b>Load unpacked</b> and choose the <code>app</code> folder inside <code>PopQuiz</code>.</p>
+          <p class="soft">Chrome won't let a web page do this step for you.</p>
+        </li>
+        <li>
+          <h2>Open your deck</h2>
+          <p>Reload any Google Slides tab that was already open. Click the Pop Quiz icon in Chrome's toolbar. It sits under the puzzle piece until you pin it. The panel opens beside your deck.</p>
+        </li>
+        <li>
+          <h2>Build your quiz</h2>
+          <p>Pick a slide and choose what it does in the panel: a question, a poll, a join screen or a leaderboard. Then press Google's own <b>Slideshow</b> button. People join by scanning the code on your join screen.</p>
+        </li>
+      </ol>
+
+      <h3>Keeping it current</h3>
+      <p>When a newer Pop Quiz is out, the panel tells you. Paste the line from step 1 again, then press <b>Reload Pop Quiz</b> in the panel. Your quizzes are kept.</p>
+      <p>Or have your Mac look for a newer one every quarter of an hour by itself:</p>
+      <div class="cmd">
+        <code id="c2" data-cmd=" -s -- --auto"></code>
+        <button type="button" data-copy="c2">Copy</button>
+      </div>
+      <p class="soft">To stop that: <code>sh ~/PopQuiz/popquiz.sh --stop</code></p>
+
+      <h3>Before you rely on it</h3>
+      <ul class="plain">
+        <li><b>It's free, and in testing.</b> Run it once with a few phones before you use it in front of a room.</li>
+        <li><b>Your quiz stays on your laptop.</b> It's kept by Chrome, and a safety copy goes into your Downloads folder after every change.</li>
+        <li><b>Players give a nickname and nothing else.</b> No accounts, no app.</li>
+        <li><b>Up to 100 phones a game.</b> It works in the room and over a video call.</li>
+        <li><b>If it stops mid-game,</b> a show of hands still works.</li>
+      </ul>
+
+      <footer>
+        <p>Pop Quiz is not affiliated with or endorsed by Google. Google Slides is a trademark of Google LLC.</p>
+      </footer>
+    </main>
+    <script>
+      // The commands name this page's own site, wherever it is published.
+      const site = location.origin;
+      for (const el of document.querySelectorAll('[data-cmd]')) el.textContent = `curl -fsSL ${site}/get/popquiz.sh | POPQUIZ_SITE=${site} sh${el.dataset.cmd}`;
+
+      for (const button of document.querySelectorAll('button[data-copy]')) {
+        button.addEventListener('click', async () => {
+          const text = document.getElementById(button.dataset.copy).textContent;
+          try {
+            await navigator.clipboard.writeText(text);
+            button.textContent = 'Copied';
+          } catch {
+            const range = document.createRange();
+            range.selectNodeContents(document.getElementById(button.dataset.copy));
+            const selection = getSelection();
+            selection.removeAllRanges();
+            selection.addRange(range);
+            button.textContent = 'Selected';
+          }
+          setTimeout(() => (button.textContent = 'Copy'), 1600);
+        });
+      }
+    </script>
+  </body>
+</html>

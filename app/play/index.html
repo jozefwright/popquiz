@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <link rel="icon" type="image/svg+xml" href="../icons/mark-small.svg">
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex" />
+    <title>Pop Quiz backup player</title>
+    <link rel="stylesheet" href="play.css" />
+  </head>
+  <body>
+    <div id="show">
+      <div id="slide">
+        <canvas id="page"></canvas>
+        <div id="mock" hidden></div>
+      </div>
+      <iframe id="stage" title="Pop Quiz" allowtransparency="true"></iframe>
+      <div id="chrome"><span id="where"></span><span id="hint">S setup · F full screen · T start or reveal</span></div>
+    </div>
+
+    <dialog id="setup">
+      <form method="dialog" id="setup-form">
+        <h1>Pop Quiz backup player</h1>
+        <p class="lede">The safety net. It plays the deck from a PDF and runs the same quiz engine, with no Google page involved.</p>
+
+        <section>
+          <h2>1. The deck</h2>
+          <p>In Google Slides: File, Download, PDF document.</p>
+          <label class="file"><input type="file" id="pdf-file" accept="application/pdf" /><span id="pdf-state">No PDF loaded. The demo slides will play.</span></label>
+        </section>
+
+        <section>
+          <h2>2. The quiz</h2>
+          <p>Pop Quiz keeps a shared copy of every deck's quiz. Paste the deck's link and it is fetched.</p>
+          <div class="row"><input type="url" id="deck-link" placeholder="Paste the deck's Google Slides link" /><button type="button" id="deck-fetch" class="quiet">Load its quiz</button></div>
+          <label class="file"><span id="deck-state">No quiz loaded. The demo quiz will play.</span><span class="or">or load an exported file</span><input type="file" id="deck-file" accept="application/json,.json" /></label>
+        </section>
+
+        <section>
+          <h2>3. The room</h2>
+          <p id="room-state"></p>
+          <button type="button" id="new-session" class="quiet">Start a fresh session</button>
+        </section>
+
+        <div class="actions">
+          <button type="button" id="forget" class="quiet">Forget this deck</button>
+          <button type="submit" class="go">Present</button>
+        </div>
+      </form>
+    </dialog>
+
+    <script type="module" src="play.js"></script>
+  </body>
+</html>

@@ -1,0 +1,782 @@
+@import url('vendor/fonts.css');
+/* The phone. One screen at a time, big targets, nothing to scroll.
+   Colours follow the deck: the presenter's theme arrives with each snapshot. */
+
+
+:root {
+  /* Pop Quiz's own look (BRAND.md) until the deck's theme arrives */
+  --bg: #fff6dc;
+  --text: #1a1a1a;
+  --accent: #f9ab00;
+  --on-accent: #1a1a1a;
+  --card: #ffffff;
+  --card-text: #1a1a1a;
+  --good: #f9ab00;
+  --on-good: #1a1a1a;
+  --edge: #1a1a1a;
+  --accent-text: #1a1a1a;
+  --good-text: #1a1a1a;
+  --font: 'Bricolage Grotesque', system-ui, -apple-system, sans-serif;
+  --case: none;
+  --soft: color-mix(in srgb, var(--text) 62%, transparent);
+  --hair: color-mix(in srgb, var(--text) 16%, transparent);
+}
+
+* {
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
+}
+
+html,
+body {
+  margin: 0;
+  height: 100%;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font);
+  -webkit-font-smoothing: antialiased;
+  -webkit-text-size-adjust: 100%;
+  touch-action: manipulation;
+  overscroll-behavior: none;
+}
+
+body {
+  display: flex;
+  flex-direction: column;
+  min-height: 100dvh;
+  padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+}
+
+#bar {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 20px 6px;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--soft);
+}
+
+#bar-name {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  text-align: right;
+}
+
+#bar-link {
+  flex: 0 0 auto;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: var(--good);
+  transition: background-color 0.3s;
+}
+
+#bar-link[data-link='connecting'] {
+  background: #e6b422;
+  animation: blink 1s ease-in-out infinite;
+}
+
+#bar-link[data-link='away'] {
+  background: #e0452a;
+  animation: blink 1s ease-in-out infinite;
+}
+
+#app {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  width: 100%;
+  max-width: 520px;
+  margin: 0 auto;
+  padding: 12px 20px 28px;
+  min-height: 0;
+}
+
+#app > * {
+  animation: in 0.28s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+
+/* Centred while it fits; from the top once it is taller than the screen, so
+   nothing is pushed up out of reach (justify-content: center would). */
+#app > :first-child {
+  margin-top: auto;
+}
+
+#app > :last-child {
+  margin-bottom: auto;
+}
+
+h1 {
+  margin: 0;
+  font-size: clamp(34px, 11vw, 56px);
+  font-weight: 900;
+  line-height: 0.95;
+  letter-spacing: -0.01em;
+  text-transform: var(--case);
+  color: var(--accent-text);
+  text-wrap: balance;
+}
+
+h1.plain {
+  color: var(--text);
+}
+
+h1.good {
+  color: var(--good-text);
+}
+
+p {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 500;
+  line-height: 1.35;
+  color: var(--soft);
+  text-wrap: pretty;
+}
+
+p b {
+  font-weight: 800;
+  color: var(--text);
+}
+
+.q {
+  font-size: clamp(20px, 5.6vw, 26px);
+  font-weight: 800;
+  line-height: 1.15;
+  color: var(--text);
+  text-wrap: balance;
+}
+
+.worth {
+  align-self: flex-start;
+  padding: 7px 13px;
+  font-size: 13px;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--on-accent, #fff);
+  background: var(--accent);
+  border-radius: 99px;
+}
+
+/* ---- forms --------------------------------------------------------------- */
+
+form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+label {
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--soft);
+}
+
+input {
+  width: 100%;
+  padding: 16px 18px;
+  font: 800 24px / 1.1 var(--font);
+  color: var(--text);
+  background: var(--card);
+  border: 2px solid transparent;
+  border-radius: 14px;
+  outline: none;
+  appearance: none;
+}
+
+input:focus {
+  border-color: var(--accent);
+}
+
+/* An open answer: a sentence, so a box a few lines deep, with what is left. */
+textarea {
+  width: 100%;
+  padding: 14px 16px;
+  font: 700 20px / 1.3 var(--font);
+  color: var(--text);
+  background: var(--card);
+  border: 2px solid transparent;
+  border-radius: 14px;
+  outline: none;
+  resize: none;
+  appearance: none;
+}
+
+textarea:focus {
+  border-color: var(--accent);
+}
+
+form.open .open-foot {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+form.open .open-foot .go {
+  flex: 1;
+}
+
+form.open .left {
+  font-size: 13px;
+  color: var(--soft);
+  white-space: nowrap;
+}
+
+input.code {
+  font-size: 40px;
+  letter-spacing: 0.3em;
+  text-align: center;
+  text-transform: uppercase;
+}
+
+button {
+  font: inherit;
+  color: inherit;
+  border: 0;
+  cursor: pointer;
+}
+
+.go {
+  padding: 18px;
+  font-size: 20px;
+  font-weight: 900;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--on-accent, #fff);
+  background: var(--accent);
+  border-radius: 14px;
+  transition: transform 0.1s, opacity 0.2s;
+}
+
+.go:active {
+  transform: scale(0.98);
+}
+
+.go:disabled {
+  opacity: 0.4;
+}
+
+.err {
+  min-height: 1.3em;
+  font-size: 15px;
+  font-weight: 700;
+  color: #ff8a70;
+}
+
+/* ---- the clock ----------------------------------------------------------- */
+
+.clock {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.clock-track {
+  flex: 1;
+  height: 8px;
+  background: var(--hair);
+  border-radius: 99px;
+  overflow: hidden;
+}
+
+.clock-fill {
+  width: 100%;
+  height: 100%;
+  background: var(--accent);
+  border-radius: 99px;
+  transform-origin: left center;
+  will-change: transform;
+}
+
+.clock-num {
+  flex: 0 0 auto;
+  min-width: 2ch;
+  font-size: 22px;
+  font-weight: 900;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---- options ------------------------------------------------------------- */
+
+.opts {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.opt {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  width: 100%;
+  min-height: 68px;
+  padding: 12px 16px;
+  font-size: 19px;
+  font-weight: 700;
+  line-height: 1.15;
+  text-align: left;
+  color: var(--card-text);
+  background: var(--card);
+  border-radius: 14px;
+  overflow: hidden;
+  transition: transform 0.1s, opacity 0.25s, box-shadow 0.25s, background-color 0.25s;
+}
+
+button.opt:active {
+  transform: scale(0.985);
+}
+
+/* more than six options: tighter rows, so the list stays on one screen */
+.opts.many {
+  gap: 5px;
+}
+
+/* a few long options, a sentence each: smaller type and tighter rows */
+.opts.long {
+  gap: 8px;
+}
+
+.opts.long .opt {
+  min-height: 54px;
+  padding: 9px 14px;
+  gap: 12px;
+  font-size: 16px;
+  line-height: 1.18;
+}
+
+.opts.long .opt-letter {
+  width: 34px;
+  height: 34px;
+  font-size: 16px;
+}
+
+/* two columns: a word is broken only if it is too long for a line on its own */
+.opts.many.short .opt {
+  align-items: flex-start;
+}
+
+.opts.many.short .opt-text {
+  overflow-wrap: break-word;
+}
+
+/* two columns of options a few words long: smaller type, so whole words fit */
+.opts.many.short.snug .opt {
+  gap: 8px;
+  padding: 8px 10px;
+  font-size: 14px;
+  line-height: 1.2;
+}
+
+.opts.many.short.snug .opt-letter {
+  width: 28px;
+  height: 28px;
+  font-size: 14px;
+  border-radius: 7px;
+}
+
+/* Lock in stays at the bottom of the screen while a long list of options scrolls under it */
+button.go.stick {
+  position: sticky;
+  bottom: max(12px, env(safe-area-inset-bottom));
+  z-index: 2;
+  box-shadow: 0 -10px 24px 6px var(--bg);
+}
+
+/* solid even while it waits for a choice, so options scrolling under it do not show through */
+button.go.stick:disabled {
+  opacity: 1;
+  color: color-mix(in srgb, #fff 55%, transparent);
+  background: color-mix(in srgb, var(--accent) 38%, var(--bg));
+}
+
+.again {
+  align-self: flex-start;
+  padding: 10px 0;
+  font: inherit;
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--soft);
+  text-decoration: underline;
+  background: none;
+  border: 0;
+  cursor: pointer;
+}
+
+.opts.many .opt {
+  min-height: 44px;
+  padding: 6px 12px;
+  gap: 10px;
+  font-size: 15px;
+  border-radius: 12px;
+}
+
+.opts.many .opt-letter {
+  width: 32px;
+  height: 32px;
+  font-size: 16px;
+  border-radius: 8px;
+}
+
+/* and when every option is short (a lineup's letters, names), two columns */
+.opts.many.short {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-auto-flow: column;
+  grid-template-rows: repeat(var(--rows, 6), auto);
+}
+
+.opt-letter {
+  position: relative;
+  flex: 0 0 auto;
+  display: grid;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  font-size: 18px;
+  font-weight: 900;
+  color: var(--on-accent, #fff);
+  background: var(--accent);
+  border-radius: 9px;
+}
+
+.opt-text {
+  position: relative;
+  flex: 1;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.opt-n {
+  position: relative;
+  flex: 0 0 auto;
+  font-weight: 900;
+  font-variant-numeric: tabular-nums;
+}
+
+.opt-fill {
+  position: absolute;
+  inset: 0 auto 0 0;
+  background: color-mix(in srgb, var(--accent) 45%, var(--card));
+  transition: width 0.6s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.opt.mine {
+  box-shadow: inset 0 0 0 3px var(--text);
+}
+
+/* ticked, on a question where several may be: plain to see at arm's length */
+.opt.picked {
+  background: color-mix(in srgb, var(--accent) 34%, var(--card));
+  box-shadow: inset 0 0 0 3px var(--accent);
+}
+
+.opt.picked .opt-letter {
+  color: #1a1a1a; /* on its white badge, whatever the theme */
+  background: #fff;
+}
+
+.hint {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--soft);
+}
+
+/* guess the number: the guess, large; a slider; a nudge either side */
+.num-read {
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 10px;
+  padding: 6px 0;
+  color: var(--text);
+}
+
+.num-read b {
+  font-size: clamp(64px, 24vw, 108px);
+  font-weight: 900;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+
+.num-read span {
+  font-size: 26px;
+  font-weight: 800;
+  color: var(--soft);
+}
+
+.num-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.num-nudge {
+  flex: 0 0 54px;
+  height: 54px;
+  font-size: 30px;
+  font-weight: 800;
+  line-height: 1;
+  color: var(--card-text);
+  background: var(--card);
+  border-radius: 50%;
+}
+
+.num-nudge:active {
+  transform: scale(0.94);
+}
+
+.num-slider {
+  flex: 1;
+  min-width: 0;
+  height: 54px;
+  margin: 0;
+  background: transparent;
+  accent-color: var(--accent);
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+.num-slider::-webkit-slider-runnable-track {
+  height: 12px;
+  background: var(--hair);
+  border-radius: 99px;
+}
+
+.num-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 40px;
+  height: 40px;
+  margin-top: -14px;
+  background: var(--accent);
+  border: 4px solid #fff;
+  border-radius: 50%;
+}
+
+.num-slider::-moz-range-track {
+  height: 12px;
+  background: var(--hair);
+  border-radius: 99px;
+}
+
+.num-slider::-moz-range-thumb {
+  width: 32px;
+  height: 32px;
+  background: var(--accent);
+  border: 4px solid #fff;
+  border-radius: 50%;
+}
+
+.num-ends {
+  display: flex;
+  justify-content: space-between;
+  padding: 0 66px;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--soft);
+  font-variant-numeric: tabular-nums;
+}
+
+.opt.dim {
+  opacity: 0.45;
+}
+
+.opt.right {
+  background: color-mix(in srgb, var(--good) 30%, var(--card));
+  box-shadow: inset 0 0 0 3px var(--good);
+  animation: flash 0.42s ease-in-out 3;
+}
+
+@keyframes flash {
+  50% {
+    background: var(--good);
+  }
+}
+
+.opt.right .opt-letter {
+  color: #0b0b0b;
+  background: var(--good);
+}
+
+.opt.right .opt-fill {
+  background: color-mix(in srgb, var(--good) 55%, var(--card));
+}
+
+/* ---- little things ------------------------------------------------------- */
+
+.stat {
+  display: flex;
+  gap: 10px;
+}
+
+.stat > div {
+  flex: 1;
+  padding: 14px 16px;
+  background: var(--card);
+  border-radius: 14px;
+}
+
+.stat b {
+  display: block;
+  font-size: 30px;
+  font-weight: 900;
+  line-height: 1;
+  color: var(--text);
+  font-variant-numeric: tabular-nums;
+}
+
+.stat span {
+  display: block;
+  margin-top: 6px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--soft);
+}
+
+.stat.typed {
+  flex-direction: column;
+}
+
+/* a typed answer can run to 40 characters: it wraps rather than runs off */
+.stat.typed b {
+  font-size: 22px;
+  line-height: 1.2;
+  overflow-wrap: anywhere;
+}
+
+.podium {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.podium > div {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  font-size: 18px;
+  font-weight: 800;
+  background: var(--card);
+  border-radius: 12px;
+}
+
+.podium > div:first-child {
+  color: var(--on-accent, #fff);
+  background: var(--accent);
+}
+
+.podium .rank {
+  flex: 0 0 1.4em;
+  font-weight: 900;
+}
+
+.podium .who {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.dots::after {
+  content: '';
+  animation: dots 1.4s steps(4, end) infinite;
+}
+
+@keyframes dots {
+  25% {
+    content: '.';
+  }
+  50% {
+    content: '..';
+  }
+  75% {
+    content: '...';
+  }
+}
+
+@keyframes blink {
+  50% {
+    opacity: 0.35;
+  }
+}
+
+@keyframes in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+
+/* ---- Pop Quiz's own look: an ink outline and a hard shadow ---------------- */
+
+:root[data-edged] .opt:not(.mine):not(.picked),
+:root[data-edged] .stat > div,
+:root[data-edged] input {
+  box-shadow: inset 0 0 0 2.5px var(--edge);
+}
+
+:root[data-edged] .go:not(:disabled) {
+  box-shadow: inset 0 0 0 2.5px var(--edge), 4px 4px 0 var(--edge);
+}
+
+.made {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 10px 0 16px;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--soft);
+  text-decoration: none;
+}
+
+.made img {
+  width: 18px;
+  height: 18px;
+}
+
+.lockup {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 22px;
+  font-weight: 900;
+  letter-spacing: -0.02em;
+}
+
+.lockup img {
+  width: 44px;
+  height: 44px;
+}
+
+:root[data-edged] .opt.right {
+  box-shadow: inset 0 0 0 2.5px var(--edge), 4px 4px 0 var(--edge);
+}
+
+:root[data-edged] .opt.picked {
+  box-shadow: inset 0 0 0 3px var(--edge), 3px 3px 0 var(--edge);
+}

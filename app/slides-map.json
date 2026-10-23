@@ -1,0 +1,18 @@
+{
+  "schema": 1,
+  "note": "What Pop Quiz relies on in Google Slides markup. Edit a value here to fix a Slides change without a new extension; see app/shared/slides-map.js.",
+  "map": {
+    "workspace": "workspace",
+    "pages": "pages",
+    "editor": "editor-",
+    "filmstrip": "filmstrip-slide-",
+    "bg": "-bg",
+    "paragraph": "-paragraph-",
+    "filmstripScroll": ".punch-filmstrip-scroll",
+    "selectionStroke": "#1a73e8",
+    "slideHash": "slide=id.",
+    "presentFrame": "iframe.punch-present-iframe",
+    "svg": ".punch-viewer-svgpage-svgcontainer svg",
+    "presentPath": "/present"
+  }
+}

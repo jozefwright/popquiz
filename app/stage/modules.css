@@ -1,0 +1,1736 @@
+@import url('../vendor/fonts.css');
+/* Tally modules. Shared by the big screen and the side panel's preview.
+   Every size is in container units (cqw, cqh), so a module is drawn to the
+   box it is given and nothing else. Colours and type come from --t-* custom
+   properties set by applyTheme().
+
+   In a question, type is sized by the box's height alone and the gaps between
+   things by its width. So a box made narrower keeps its type and closes its
+   gaps; type gets smaller only where it would no longer fit, which fitText()
+   in modules.js sees to. Join and leaderboard still scale with both. */
+
+
+.tm {
+  container-type: size;
+  box-sizing: border-box;
+  width: 100%;
+  height: 100%;
+  font-family: var(--t-font, 'Bricolage Grotesque', system-ui, sans-serif);
+  color: var(--t-text, #fff);
+  background: var(--t-ground, transparent);
+  border-radius: var(--r);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  /* corners follow the width, but stop getting tighter once the box is narrow */
+  --r: calc(var(--t-radius, 14) * 0.1 * max(1cqw, 1.6cqh));
+  /* the header's unit: a hundredth of the box's height, or far more when the box holds the header alone */
+  --hh: 1cqh;
+  --soft: color-mix(in srgb, var(--t-text, #fff) 62%, transparent);
+  --hair: color-mix(in srgb, var(--t-text, #fff) 18%, transparent);
+}
+
+.tm *,
+.tm *::before,
+.tm *::after {
+  box-sizing: border-box;
+}
+
+/* while fitText() measures: a word may not break, so one too long for its line shows */
+.tm-fitting [data-fit],
+.tm-fitting [data-fit] * {
+  overflow-wrap: normal !important;
+}
+
+.tm[data-grounded] {
+  padding: 3.5cqmin;
+}
+
+.tm-empty {
+  display: none;
+}
+
+.tm-in {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 3cqh;
+  min-height: 0;
+}
+
+.tm-kicker {
+  font-size: min(11cqh, 6cqw);
+  font-weight: 900;
+  line-height: 0.95;
+  letter-spacing: -0.01em;
+  text-transform: var(--t-case, uppercase);
+  color: var(--t-accent-text, var(--t-accent));
+}
+
+/* ---- question header: optional text, answer count, clock ---------------- */
+
+.tm-head {
+  flex: 0 0 calc(15 * var(--hh));
+  display: flex;
+  align-items: center;
+  gap: 3cqw;
+  min-height: 0;
+}
+
+.tm-qtext {
+  flex: 1;
+  min-width: 0;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+}
+
+.tm-qtext > span {
+  display: block;
+  width: 100%;
+  font-size: calc(6.4 * var(--hh));
+  font-weight: var(--t-weight, 700);
+  line-height: 1.04;
+  text-transform: var(--t-case, uppercase);
+  overflow-wrap: anywhere;
+}
+
+.tm-joinhint > span {
+  font-size: calc(3.6 * var(--hh));
+  font-weight: 500;
+  line-height: 1.15;
+  text-transform: none;
+  color: var(--soft);
+}
+
+.tm-joinhint b {
+  font-weight: 800;
+  color: var(--t-text);
+  letter-spacing: 0.02em;
+}
+
+.tm-worth {
+  flex: 0 0 auto;
+  padding: 0.35em 0.9em;
+  font-size: calc(3.8 * var(--hh) * var(--fit, 1));
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  color: var(--t-on-accent, #fff);
+  background: var(--t-accent);
+  border-radius: 99em;
+}
+
+.tm-several {
+  flex: 0 0 auto;
+  padding: 0.35em 0.9em;
+  font-size: calc(3.8 * var(--hh) * var(--fit, 1));
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  color: var(--t-text);
+  box-shadow: inset 0 0 0 0.14em var(--t-accent);
+  border-radius: 99em;
+}
+
+.tm-answered {
+  flex: 0 0 auto;
+  font-size: calc(3.8 * var(--hh) * var(--fit, 1));
+  font-weight: 600;
+  color: var(--soft);
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+.tm-ring {
+  flex: 0 0 auto;
+  position: relative;
+  height: min(100%, 18cqw); /* in a tall, narrow box the clock would be wider than its share of the row */
+  aspect-ratio: 1;
+}
+
+.tm-ring svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.tm-ring-track {
+  fill: none;
+  stroke: var(--hair);
+  stroke-width: 9;
+}
+
+.tm-ring-arc {
+  fill: none;
+  stroke: var(--t-accent);
+  stroke-width: 9;
+  stroke-linecap: round;
+}
+
+.tm-ring-num {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  font-size: calc(6.6 * var(--hh));
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+}
+
+.tm-ring-hot .tm-ring-num {
+  animation: tm-beat 1s ease-in-out infinite;
+}
+
+.tm-ring-done .tm-ring-arc {
+  opacity: 0;
+}
+
+.tm-ring-done .tm-ring-num {
+  color: var(--soft);
+}
+
+/* A box that holds only the header (every option is out on the slide): the
+   header fills it, and is sized by it. */
+.tm-headonly {
+  --hh: min(6.4cqh, 1.2cqw); /* never wider than the box: a tall, narrow one would spill across the slide */
+}
+
+.tm-headonly .tm-head {
+  flex: 1 1 auto;
+}
+
+/* A tall box beside a photo (a put-in-order round with every item out on the
+   slide): the header stacks down the box, from the top, with the clock under it. */
+@container (max-aspect-ratio: 1 / 1) {
+  .tm-headonly {
+    --hh: min(6.4cqh, 1.7cqw);
+  }
+
+  .tm-headonly .tm-head {
+    flex: 0 0 auto;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 2.4cqh;
+  }
+
+  .tm-headonly .tm-ring {
+    height: min(34cqw, 30cqh);
+  }
+
+  .tm-headonly .tm-qtext {
+    flex: 0 0 auto;
+    width: 100%;
+    height: auto;
+  }
+}
+
+/* ---- votes shown on the slide itself --------------------------------------
+   Each option's votes rise over its own photo or shape. The pins are placed as
+   shares of the module's box, and each is its own container, so what is in it
+   is sized by the shape it sits on. */
+
+.tm-pins {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.tm-pin {
+  position: absolute;
+  container-type: size;
+  overflow: hidden;
+  transition: opacity 0.4s;
+}
+
+.tm-pin-fill {
+  position: absolute;
+  inset: auto 0 0 0;
+  height: 0;
+  background: linear-gradient(to top, color-mix(in srgb, var(--t-accent) 72%, transparent), color-mix(in srgb, var(--t-accent) 16%, transparent));
+  box-shadow: inset 0 0.9cqh 0 var(--t-accent);
+  transition: height 0.7s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.tm-pin-ring {
+  position: absolute;
+  inset: 0;
+  transition: box-shadow 0.4s;
+}
+
+.tm-pin-foot {
+  position: absolute;
+  left: 50%;
+  bottom: 4cqh;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 0.4em;
+  padding: 0.28em;
+  font-size: min(9cqh, 17cqw);
+  font-weight: 800;
+  line-height: 1;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+  color: var(--t-card-text);
+  background: color-mix(in srgb, var(--t-card) 90%, transparent);
+  border-radius: 99em;
+}
+
+.tm-pin-letter {
+  display: grid;
+  place-items: center;
+  width: 1.55em;
+  aspect-ratio: 1;
+  color: var(--t-on-accent, #fff);
+  background: var(--t-accent);
+  border-radius: 50%;
+}
+
+.tm-pin-num:empty,
+.tm-pin-mark:empty {
+  display: none;
+}
+
+.tm-pin-num {
+  padding-right: 0.35em;
+}
+
+.tm-pin-mark {
+  padding-right: 0.35em;
+  margin-left: -0.2em;
+}
+
+.tm-pin.tm-right .tm-pin-fill {
+  background: linear-gradient(to top, color-mix(in srgb, var(--t-correct) 74%, transparent), color-mix(in srgb, var(--t-correct) 18%, transparent));
+  box-shadow: inset 0 0.9cqh 0 var(--t-correct);
+}
+
+.tm-pin.tm-right .tm-pin-ring {
+  box-shadow: inset 0 0 0 1.6cqmin var(--t-correct);
+  animation: tm-pin-flash 0.42s ease-in-out 3;
+}
+
+.tm-pin.tm-right .tm-pin-letter {
+  color: #0b0b0b;
+  background: var(--t-correct);
+}
+
+.tm-pin.tm-lead .tm-pin-ring {
+  box-shadow: inset 0 0 0 1.6cqmin var(--t-accent);
+  animation: tm-pin-lead 0.42s ease-in-out 3;
+}
+
+.tm-pin.tm-wrong {
+  opacity: 0.5;
+}
+
+/* ---- a put-in-order round's places, out on the slide ------------------------
+   One label per item, put by hand where it is on the slide. Each is its own
+   container, so its type is sized by the label alone. */
+
+.tm-tag {
+  position: absolute;
+  container-type: size;
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.tm-tag.tm-shown {
+  opacity: 1;
+}
+
+.tm-tag-card {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3cqh;
+  padding: 6cqh 6cqw;
+  color: var(--t-card-text);
+  background: color-mix(in srgb, var(--t-card) 94%, transparent);
+  border-radius: min(16cqh, 12cqw);
+  box-shadow: 0 1.5cqh 6cqh rgba(0, 0, 0, 0.35);
+}
+
+.tm-tag-letter {
+  position: absolute;
+  left: 6cqw;
+  top: 7cqh;
+  display: grid;
+  place-items: center;
+  width: min(24cqh, 17cqw);
+  aspect-ratio: 1;
+  font-size: min(14cqh, 10cqw);
+  font-weight: 800;
+  line-height: 1;
+  color: var(--t-on-accent, #fff);
+  background: var(--t-accent);
+  border-radius: 50%;
+}
+
+.tm-tag-line {
+  display: flex;
+  align-items: baseline;
+  gap: 0.1em;
+  font-size: min(44cqh, 30cqw);
+  font-weight: 900;
+  line-height: 0.95;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+  color: var(--t-accent-text, var(--t-accent));
+}
+
+.tm-tag-mark:empty,
+.tm-tag-room:empty {
+  display: none;
+}
+
+.tm-tag-mark {
+  font-size: 0.62em;
+}
+
+/* where the room put it, small, under its right place */
+.tm-tag-room {
+  font-size: min(14cqh, 9.5cqw);
+  font-weight: 800;
+  line-height: 1;
+  white-space: nowrap;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  opacity: 0.8;
+}
+
+.tm-tag.tm-right .tm-tag-card {
+  color: #0b0b0b;
+  background: var(--t-correct);
+}
+
+.tm-tag.tm-right .tm-tag-line {
+  color: inherit;
+}
+
+.tm-tag.tm-right .tm-tag-letter {
+  color: var(--t-correct);
+  background: #0b0b0b;
+}
+
+/* the winner lands last, like the rest, then flashes */
+.tm-tag.tm-right .tm-tag-card.tm-rise {
+  animation: tm-rise 0.5s cubic-bezier(0.2, 0.8, 0.2, 1) both, tm-tag-flash 0.42s ease-in-out 3;
+  animation-delay: var(--d, 0ms), calc(var(--d, 0ms) + 0.5s);
+}
+
+@keyframes tm-tag-flash {
+  50% {
+    transform: scale(1.06);
+  }
+}
+
+/* ---- options ------------------------------------------------------------- */
+
+.tm-opts {
+  flex: 1;
+  min-height: 0;
+  display: grid;
+  gap: 2.4cqh 1.8cqw;
+  transition: opacity 0.3s, filter 0.3s;
+}
+
+.tm-opts-stack {
+  grid-template-columns: 1fr;
+  grid-auto-rows: 1fr;
+}
+
+.tm-opts-grid {
+  grid-template-columns: 1fr 1fr;
+  grid-auto-rows: 1fr;
+}
+
+.tm-opts-grid.tm-n3,
+.tm-opts-grid.tm-n5,
+.tm-opts-grid.tm-n6 {
+  grid-template-columns: 1fr 1fr 1fr;
+}
+
+
+/* more than six: two columns, A to F down the first and the rest down the
+   second, so each row keeps a six-option row's height. Bars and cards alike. */
+.tm-opts:is(.tm-n7, .tm-n8, .tm-n9, .tm-n10, .tm-n11, .tm-n12) {
+  grid-template-columns: 1fr 1fr;
+  grid-auto-flow: column;
+  grid-template-rows: repeat(var(--rows, 6), 1fr);
+}
+
+.tm-opts:is(.tm-n7, .tm-n8) {
+  --rows: 4;
+}
+
+.tm-opts:is(.tm-n9, .tm-n10) {
+  --rows: 5;
+}
+
+.tm-opt {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 1.8cqw;
+  min-width: 0;
+  min-height: 0;
+  padding: 0 2.2cqw;
+  background: var(--t-card);
+  color: var(--t-card-text);
+  border-radius: var(--r);
+  overflow: hidden;
+  transition: opacity 0.4s, background-color 0.4s, box-shadow 0.4s;
+}
+
+.tm-fill {
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 0;
+  background: color-mix(in srgb, var(--t-accent) 62%, var(--t-card));
+  transition: width 0.7s cubic-bezier(0.2, 0.8, 0.2, 1), background-color 0.4s;
+}
+
+.tm-opt-letter {
+  position: relative;
+  flex: 0 0 auto;
+  display: grid;
+  place-items: center;
+  width: 1.85em;
+  aspect-ratio: 1;
+  font-size: 5cqh;
+  font-weight: 800;
+  line-height: 1;
+  color: var(--t-on-accent, #fff);
+  background: var(--t-accent);
+  border-radius: calc(var(--r) * 0.6);
+  transition: background-color 0.4s;
+}
+
+.tm-opt-text {
+  position: relative;
+  flex: 1;
+  min-width: 0;
+  max-height: 100%;
+}
+
+.tm-opt-text > span {
+  display: block;
+  font-size: 5.2cqh;
+  font-weight: var(--t-weight, 700);
+  line-height: 1.08;
+  text-transform: var(--t-case, uppercase);
+  overflow-wrap: anywhere;
+}
+
+.tm-opt-num {
+  position: relative;
+  flex: 0 0 auto;
+  min-width: 1.4em;
+  text-align: right;
+  font-size: 6cqh;
+  font-weight: 800;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.tm-opt.tm-shown .tm-opt-num {
+  opacity: 1;
+}
+
+.tm-opt-mark {
+  position: relative;
+  flex: 0 0 auto;
+  font-size: 6cqh;
+  font-weight: 900;
+  line-height: 1;
+}
+
+.tm-opt-mark:empty {
+  display: none;
+}
+
+.tm-display-numbers .tm-opt-num {
+  font-size: 12cqh;
+}
+
+/* two or three rows of cards have room for bigger type than a stack of rows */
+.tm-opts-grid .tm-opt-text > span {
+  font-size: 7cqh;
+}
+
+.tm-opts-grid .tm-opt-letter {
+  font-size: 6cqh;
+}
+
+/* more than six cards are rows of a stack, two across, and sized as one */
+.tm-opts-grid:is(.tm-n7, .tm-n8, .tm-n9, .tm-n10, .tm-n11, .tm-n12) .tm-opt-text > span {
+  font-size: 5.2cqh;
+}
+
+.tm-opts-grid:is(.tm-n7, .tm-n8, .tm-n9, .tm-n10, .tm-n11, .tm-n12) .tm-opt-letter {
+  font-size: 5cqh;
+}
+
+.tm-display-numbers .tm-opts-grid:is(.tm-n7, .tm-n8, .tm-n9, .tm-n10, .tm-n11, .tm-n12) .tm-opt-num {
+  font-size: 6cqh;
+}
+
+/* a narrow box has no room for cards side by side: one column, sized as a stack */
+@container (max-aspect-ratio: 3 / 2) {
+  .tm-opts-grid,
+  .tm-opts-grid.tm-n3,
+  .tm-opts-grid.tm-n5,
+  .tm-opts-grid.tm-n6 {
+    grid-template-columns: 1fr;
+  }
+
+  .tm-opts-grid:is(.tm-n7, .tm-n8, .tm-n9, .tm-n10, .tm-n11, .tm-n12) {
+    grid-template-columns: 1fr 1fr; /* stays two: twelve in one column would be too thin */
+  }
+
+  .tm-opts-grid .tm-opt-text > span {
+    font-size: 5.2cqh;
+  }
+
+  .tm-opts-grid .tm-opt-letter {
+    font-size: 5cqh;
+  }
+
+  .tm-display-numbers .tm-opt-num {
+    font-size: 7cqh;
+  }
+}
+
+/* the buzzer has gone; hold still for the reveal */
+.tm-phase-locking .tm-opts {
+  opacity: 0.6;
+  filter: saturate(0.5);
+}
+
+/* the reveal */
+.tm-opt.tm-right {
+  background: color-mix(in srgb, var(--t-correct) 30%, var(--t-card));
+  box-shadow: inset 0 0 0 0.55cqh var(--t-correct);
+  animation: tm-land 0.5s cubic-bezier(0.2, 1.3, 0.4, 1), tm-flash 0.42s ease-in-out 3;
+}
+
+.tm-opt.tm-right .tm-fill {
+  background: color-mix(in srgb, var(--t-correct) 78%, var(--t-card));
+}
+
+.tm-opt.tm-right .tm-opt-letter {
+  background: var(--t-correct);
+  color: #0b0b0b;
+}
+
+.tm-opt.tm-wrong {
+  opacity: 0.5;
+}
+
+.tm-opt.tm-wrong .tm-fill {
+  background: color-mix(in srgb, var(--t-card-text) 24%, var(--t-card));
+}
+
+.tm-opt.tm-wrong .tm-opt-letter {
+  background: color-mix(in srgb, var(--t-card-text) 30%, var(--t-card));
+}
+
+.tm-revealed .tm-opt:not(.tm-lead):not(.tm-right):not(.tm-wrong) .tm-fill {
+  background: color-mix(in srgb, var(--t-accent) 38%, var(--t-card));
+}
+
+.tm-opt.tm-lead .tm-fill {
+  background: color-mix(in srgb, var(--t-accent) 88%, var(--t-card));
+}
+
+/* ---- pie ----------------------------------------------------------------- */
+
+.tm-pie {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  align-items: center;
+  gap: 4cqw;
+}
+
+.tm-pie-art {
+  flex: 0 0 auto;
+  height: 100%;
+  aspect-ratio: 1;
+  max-width: 42cqw;
+}
+
+.tm-pie-svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.tm-slice {
+  fill: none;
+  stroke-width: 22;
+  stroke: color-mix(in oklab, var(--t-accent) calc(100% - var(--k, 0) * 88%), var(--t-text));
+}
+
+/* in a scored reveal the wrong answers step back so the right one leads */
+.tm-revealed.tm-scored .tm-slice:not(.tm-right) {
+  stroke: color-mix(in oklab, var(--t-text) calc(46% - var(--k, 0) * 36%), var(--t-card));
+}
+
+.tm-revealed.tm-scored .tm-leg:not(.tm-right) .tm-leg-dot {
+  background: color-mix(in oklab, var(--t-text) calc(46% - var(--k, 0) * 36%), var(--t-card));
+}
+
+.tm-slice.tm-right {
+  stroke: var(--t-correct);
+}
+
+.tm-slice-empty {
+  stroke: var(--hair);
+}
+
+.tm-pie-legend {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2.2cqh;
+  font-size: 5.6cqh;
+}
+
+/* more than six answers: the legend in two columns */
+.tm-pie-legend.tm-legend-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-auto-flow: column;
+  grid-template-rows: repeat(6, auto);
+  align-content: center;
+  column-gap: 2.4cqw;
+  row-gap: 2cqh;
+}
+
+.tm-leg {
+  display: flex;
+  align-items: center;
+  gap: 1.4cqw;
+  font-weight: var(--t-weight, 700);
+  line-height: 1.1;
+}
+
+.tm-leg-dot {
+  flex: 0 0 auto;
+  width: 0.8em;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: color-mix(in oklab, var(--t-accent) calc(100% - var(--k, 0) * 88%), var(--t-text));
+}
+
+.tm-leg.tm-right .tm-leg-dot {
+  background: var(--t-correct);
+}
+
+.tm-leg-l {
+  flex: 0 0 auto;
+  color: var(--soft);
+}
+
+.tm-leg-t {
+  flex: 1;
+  min-width: 0;
+  text-transform: var(--t-case, uppercase);
+  overflow-wrap: anywhere;
+}
+
+.tm-leg-n {
+  flex: 0 0 auto;
+  font-variant-numeric: tabular-nums;
+  color: var(--soft);
+}
+
+.tm-leg.tm-right {
+  color: var(--t-correct);
+}
+
+.tm-leg.tm-right .tm-leg-n,
+.tm-leg.tm-right .tm-leg-l {
+  color: inherit;
+}
+
+.tm-leg.tm-wrong {
+  opacity: 0.72;
+}
+
+/* ---- table --------------------------------------------------------------- */
+
+.tm-table-wrap {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  align-items: center;
+}
+
+.tm-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 4.8cqh;
+  font-weight: var(--t-weight, 700);
+}
+
+/* row spacing is in em, so it closes up with the text when a long table is shrunk to fit */
+.tm-table th {
+  padding: 0 1.6cqw 0.55em;
+  font-size: 0.6em;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-align: left;
+  text-transform: uppercase;
+  color: var(--soft);
+}
+
+.tm-table td {
+  padding: 0.42em 1.6cqw;
+  border-top: 0.25cqh solid var(--hair);
+  line-height: 1.1;
+}
+
+.tm-td-l {
+  width: 1.6em;
+  color: var(--t-accent-text, var(--t-accent));
+  font-weight: 800;
+}
+
+.tm-td-t {
+  text-transform: var(--t-case, uppercase);
+}
+
+.tm-td-n,
+.tm-table th:nth-child(n + 3) {
+  /* the number columns close up on the answers as the box narrows */
+  width: min(5.5em, 17cqw);
+  white-space: nowrap;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.tm-table tr.tm-right td {
+  color: var(--t-correct);
+}
+
+/* ---- put in order ---------------------------------------------------------- */
+
+/* the place, before the item's letter, once the totals are in */
+.tm-rank-place {
+  position: relative;
+  flex: 0 0 auto;
+  min-width: 2.5em;
+  font-size: 4.6cqh;
+  font-weight: 900;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+  color: var(--t-accent-text, var(--t-accent));
+}
+
+.tm-rank-place:empty {
+  display: none;
+}
+
+.tm-opt.tm-right .tm-rank-place {
+  color: inherit;
+}
+
+/* in the right order, where the room put each item, small, under its right place */
+.tm-rank-place small {
+  display: block;
+  margin-top: 0.3em;
+  font-size: 0.5em;
+  font-weight: 800;
+  white-space: nowrap;
+  opacity: 0.8;
+}
+
+/* a narrow put-in-order box (beside a photo): every bit of width to the names */
+@container (max-width: 420px) {
+  .tm-rankq .tm-opt {
+    gap: 1.2cqw;
+  }
+
+  .tm-rankq .tm-rank-place {
+    min-width: 2.1em;
+  }
+}
+
+/* the winner's card rises in last, like the rest, and flashes once it has landed */
+.tm-rankq .tm-opt.tm-rise.tm-right {
+  animation: tm-rise 0.5s cubic-bezier(0.2, 0.8, 0.2, 1) both, tm-flash 0.42s ease-in-out 3;
+  animation-delay: var(--d, 0ms), calc(var(--d, 0ms) + 0.5s);
+}
+
+/* ---- guess the number ---------------------------------------------------- */
+
+.tm-num-plot {
+  flex: 1;
+  min-height: 0;
+  position: relative;
+  margin: 0 4cqw;
+}
+
+.tm-num-axis {
+  position: absolute;
+  inset: auto 0 0 0;
+  height: 10cqh;
+  border-top: 0.5cqh solid var(--hair);
+}
+
+.tm-num-tick {
+  position: absolute;
+  top: 0;
+  padding-top: 2cqh;
+  transform: translateX(-50%);
+  font-size: 4.2cqh;
+  font-weight: 700;
+  line-height: 1;
+  white-space: nowrap;
+  color: var(--soft);
+  font-variant-numeric: tabular-nums;
+}
+
+.tm-num-tick::before {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 0;
+  width: 0.35cqh;
+  height: 1.4cqh;
+  margin-left: -0.17cqh;
+  background: var(--hair);
+}
+
+.tm-num-dots {
+  position: absolute;
+  inset: 0 0 10cqh 0;
+  /* a dot is as big as there is room for the tallest stack */
+  --dot: min(5.4cqh, calc(54cqh / var(--rows, 6)), 2.2cqw);
+}
+
+.tm-num-dot {
+  position: absolute;
+  bottom: calc(var(--row, 0) * var(--dot) * 1.1 + 1cqh);
+  width: var(--dot);
+  height: var(--dot);
+  margin-left: calc(var(--dot) / -2);
+  border-radius: 50%;
+  background: var(--t-accent);
+  animation: tm-pop 0.35s cubic-bezier(0.2, 1.4, 0.4, 1) both;
+  transition: background-color 0.5s, transform 0.5s;
+}
+
+.tm-revealed .tm-num-dot {
+  background: color-mix(in srgb, var(--t-text) 30%, var(--t-card));
+}
+
+.tm-revealed .tm-num-dot.tm-won-3 {
+  background: var(--t-correct);
+  transform: scale(1.3);
+}
+
+.tm-revealed .tm-num-dot.tm-won-2 {
+  background: var(--t-accent);
+  transform: scale(1.15);
+}
+
+.tm-revealed .tm-num-dot.tm-won-1 {
+  background: color-mix(in srgb, var(--t-accent) 58%, var(--t-card));
+}
+
+.tm-num-mark {
+  display: none;
+  position: absolute;
+  top: 0;
+  bottom: 10cqh;
+  width: 0;
+}
+
+.tm-revealed .tm-num-mark {
+  display: block;
+}
+
+.tm-num-mark-line {
+  position: absolute;
+  left: -0.35cqh;
+  top: 8cqh;
+  bottom: 0;
+  width: 0.7cqh;
+  background: var(--t-correct);
+  border-radius: 99em;
+  transform-origin: top;
+  animation: tm-drop 0.5s cubic-bezier(0.2, 1.2, 0.4, 1) 0.25s both;
+}
+
+.tm-num-mark-label {
+  position: absolute;
+  left: 0;
+  top: 0;
+  padding: 0.22em 0.6em;
+  font-size: 6.6cqh;
+  font-weight: 900;
+  line-height: 1;
+  white-space: nowrap;
+  color: #0b0b0b;
+  background: var(--t-correct);
+  border-radius: 99em;
+  font-variant-numeric: tabular-nums;
+}
+
+.tm-num-winners {
+  flex: 0 0 auto;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 1.4cqh 1.6cqw;
+  min-height: 8cqh;
+  font-size: min(4.2cqh, 2.4cqw);
+  font-weight: 700;
+  line-height: 1;
+}
+
+.tm-num-winner {
+  display: flex;
+  align-items: center;
+  gap: 0.6em;
+  padding: 0.4em 0.9em 0.4em 0.4em;
+  color: var(--t-card-text);
+  background: var(--t-card);
+  border-radius: 99em;
+}
+
+.tm-num-winner b {
+  padding: 0.3em 0.6em;
+  font-weight: 800;
+  color: var(--t-on-accent, #fff);
+  background: var(--t-accent);
+  border-radius: 99em;
+}
+
+.tm-num-winner:first-child b {
+  color: #0b0b0b;
+  background: var(--t-correct);
+}
+
+.tm-num-who {
+  text-transform: var(--t-case, uppercase);
+}
+
+.tm-num-said {
+  color: var(--soft);
+  font-variant-numeric: tabular-nums;
+}
+
+.tm-num-more {
+  padding: 0.7em 0.9em;
+  color: var(--soft);
+}
+
+/* ---- word cloud ---------------------------------------------------------- */
+
+.tm-cloud {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-wrap: wrap;
+  align-content: center;
+  align-items: center;
+  justify-content: center;
+  gap: 0.18em 0.5em;
+  font-size: calc(9cqh * var(--k, 1));
+  overflow: hidden;
+}
+
+.tm-word {
+  font-size: calc(1em * var(--s, 1));
+  font-weight: 800;
+  line-height: 1;
+  text-transform: var(--t-case, uppercase);
+  white-space: nowrap;
+  transition: font-size 0.5s cubic-bezier(0.2, 0.8, 0.2, 1), color 0.3s;
+}
+
+.tm-cloud.tm-measuring,
+.tm-cloud.tm-measuring .tm-word {
+  transition: none;
+}
+
+.tm-word:nth-child(3n + 2):not(.tm-word-top) {
+  color: var(--soft);
+}
+
+.tm-word.tm-word-top {
+  color: var(--t-accent-text, var(--t-accent));
+}
+
+/* ---- join ---------------------------------------------------------------- */
+
+.tm-join {
+  flex-direction: row;
+  align-items: center;
+  gap: 5cqw;
+}
+
+.tm-join-qr {
+  flex: 0 0 auto;
+  height: min(100cqh, 44cqw);
+  aspect-ratio: 1;
+  padding: 1.5cqmin;
+  background: #fff;
+  border-radius: var(--r);
+}
+
+.tm-qr-svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.tm-join-noqr {
+  display: grid;
+  place-items: center;
+  height: 100%;
+  padding: 2cqw;
+  font-size: 2.6cqw;
+  font-weight: 700;
+  color: #111;
+  text-align: center;
+}
+
+.tm-join-side {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2.8cqh;
+}
+
+.tm-join-how {
+  font-size: min(4.6cqh, 2.6cqw);
+  font-weight: 500;
+  line-height: 1.2;
+  color: var(--soft);
+  overflow-wrap: anywhere;
+}
+
+.tm-join-how b {
+  font-weight: 800;
+  color: var(--t-text);
+}
+
+.tm-join-code {
+  display: flex;
+  align-items: baseline;
+  gap: 2cqw;
+}
+
+.tm-join-code-label {
+  font-size: min(3.4cqh, 1.9cqw);
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--soft);
+}
+
+.tm-join-code-value {
+  font-size: min(15cqh, 8.4cqw);
+  font-weight: 900;
+  line-height: 0.9;
+  letter-spacing: 0.1em;
+}
+
+.tm-join-count {
+  font-size: min(5cqh, 2.8cqw);
+  font-weight: 800;
+  color: var(--t-accent-text, var(--t-accent));
+  font-variant-numeric: tabular-nums;
+}
+
+.tm-join-names {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.2cqh 0.9cqw;
+  max-height: 26cqh;
+  overflow: hidden;
+}
+
+.tm-chip {
+  padding: 0.38em 0.85em;
+  font-size: min(3.3cqh, 1.85cqw);
+  font-weight: 700;
+  line-height: 1;
+  color: var(--t-card-text);
+  background: var(--t-card);
+  border-radius: 99em;
+}
+
+/* ---- leaderboard --------------------------------------------------------- */
+
+.tm-board-list {
+  flex: 1;
+  min-height: 0;
+  display: grid;
+  grid-template-rows: repeat(var(--rows, 5), 1fr);
+  gap: 1.6cqh;
+}
+
+.tm-row {
+  display: flex;
+  align-items: center;
+  gap: 2.2cqw;
+  min-height: 0;
+  padding: 0 3cqw;
+  font-size: min(calc(44cqh / var(--rows, 5)), 3.8cqw);
+  font-weight: 700;
+  line-height: 1;
+  color: var(--t-card-text);
+  background: var(--t-card);
+  border-radius: var(--r);
+}
+
+.tm-row-rank {
+  flex: 0 0 1.5em;
+  font-weight: 900;
+  color: var(--t-accent-text, var(--t-accent));
+  font-variant-numeric: tabular-nums;
+}
+
+.tm-row-name {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  text-transform: var(--t-case, uppercase);
+}
+
+.tm-row-score {
+  flex: 0 0 auto;
+  font-weight: 900;
+  font-variant-numeric: tabular-nums;
+}
+
+.tm-row-tag {
+  flex: 0 0 auto;
+  padding: 0.3em 0.7em;
+  font-size: 0.5em;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--t-accent-text, var(--t-accent));
+  background: #fff;
+  border-radius: 99em;
+}
+
+.tm-row-first {
+  color: var(--t-on-accent, #fff);
+  background: var(--t-accent);
+}
+
+.tm-row-first .tm-row-rank {
+  color: inherit;
+}
+
+.tm-board-foot {
+  flex: 0 0 auto;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4em 2em;
+  font-size: min(3.2cqh, 1.8cqw);
+  font-weight: 600;
+  color: var(--soft);
+  transition: opacity 0.5s;
+}
+
+.tm-board-foot b {
+  font-weight: 800;
+  color: var(--t-text);
+}
+
+.tm-foot-wait {
+  opacity: 0;
+}
+
+/* a leaderboard that moves: held where it stood, then slid to where it stands */
+.tm-row {
+  transition: background-color 0.5s, color 0.5s;
+}
+
+.tm-row-held {
+  transform: translateY(calc(var(--from, 0) * (100% + 1.6cqh)));
+}
+
+.tm-row-settle {
+  transition: transform 0.8s cubic-bezier(0.3, 1.2, 0.4, 1), background-color 0.5s, color 0.5s;
+}
+
+.tm-row-gain,
+.tm-row-move {
+  flex: 0 0 auto;
+  font-size: 0.6em;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  opacity: 0;
+  transform: scale(0.6);
+  transition: opacity 0.3s, transform 0.3s cubic-bezier(0.2, 1.4, 0.4, 1);
+}
+
+.tm-row-gain {
+  padding: 0.3em 0.6em;
+  color: var(--t-on-accent, #fff);
+  background: var(--t-accent);
+  border-radius: 99em;
+}
+
+.tm-row-first .tm-row-gain {
+  color: var(--t-accent-text, var(--t-accent));
+  background: #fff;
+}
+
+.tm-row-move.tm-up {
+  color: var(--t-correct);
+}
+
+.tm-row-first .tm-row-move.tm-up {
+  color: #fff;
+}
+
+.tm-row-move.tm-down {
+  color: var(--soft);
+}
+
+.tm-row-gain.tm-on,
+.tm-row-move.tm-on {
+  opacity: 1;
+  transform: none;
+}
+
+/* the final leaderboard: a podium, uncovered a place at a time */
+.tm-podium {
+  flex: 1;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: 1fr 1.15fr 1fr;
+  align-items: end;
+  gap: 2cqw;
+}
+
+.tm-pod {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  min-width: 0;
+  height: 100%;
+}
+
+.tm-pod-none {
+  visibility: hidden;
+}
+
+.tm-pod-who {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 1cqh;
+  padding-bottom: 1.6cqh;
+  opacity: 0;
+  transform: translateY(14%) scale(0.9);
+  transition: opacity 0.45s, transform 0.55s cubic-bezier(0.2, 1.4, 0.4, 1);
+}
+
+.tm-pod-open .tm-pod-who {
+  opacity: 1;
+  transform: none;
+}
+
+.tm-pod-name {
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  width: 100%;
+  height: 13cqh;
+}
+
+.tm-pod-name > span {
+  display: block;
+  width: 100%;
+  text-align: center;
+  font-size: 6.4cqh;
+  font-weight: 900;
+  line-height: 1;
+  text-transform: var(--t-case, uppercase);
+  overflow-wrap: anywhere;
+}
+
+.tm-pod-1 .tm-pod-name > span {
+  font-size: 8cqh;
+}
+
+.tm-pod-score {
+  font-size: 4.6cqh;
+  font-weight: 800;
+  line-height: 1;
+  color: var(--soft);
+  font-variant-numeric: tabular-nums;
+}
+
+.tm-pod-tag {
+  padding: 0.3em 0.8em;
+  font-size: 3cqh;
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--t-on-accent, #fff);
+  background: var(--t-accent);
+  border-radius: 99em;
+}
+
+.tm-pod-step {
+  flex: 0 0 auto;
+  display: grid;
+  place-items: center;
+  font-size: 7cqh;
+  font-weight: 900;
+  line-height: 1;
+  text-transform: uppercase;
+  color: var(--soft);
+  background: var(--t-card);
+  border-radius: var(--r) var(--r) 0 0;
+  transition: background-color 0.4s, color 0.4s;
+}
+
+.tm-pod-1 .tm-pod-step {
+  height: 36cqh;
+}
+
+.tm-pod-2 .tm-pod-step {
+  height: 26cqh;
+}
+
+.tm-pod-3 .tm-pod-step {
+  height: 17cqh;
+}
+
+.tm-pod-open .tm-pod-step {
+  color: var(--t-card-text);
+}
+
+.tm-pod-open.tm-pod-1 .tm-pod-step {
+  color: var(--t-on-accent, #fff);
+  background: var(--t-accent);
+  animation: tm-crown 0.42s ease-in-out 3;
+}
+
+.tm-pod-rest {
+  flex: 0 0 auto;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 1cqh 3cqw;
+  font-size: min(3.8cqh, 2.4cqw);
+  font-weight: 700;
+}
+
+.tm-pod-also {
+  display: flex;
+  align-items: baseline;
+  gap: 0.6em;
+}
+
+.tm-pod-also .tm-row-rank {
+  flex: 0 0 auto;
+}
+
+.tm-pod-also .tm-row-name {
+  flex: 0 1 auto;
+}
+
+.tm-pod-also .tm-row-score {
+  color: var(--soft);
+}
+
+.tm-board-foot:empty {
+  display: none;
+}
+
+.tm-board-empty {
+  display: grid;
+  place-items: center;
+  grid-row: 1 / -1;
+  font-size: min(5cqh, 3cqw);
+  font-weight: 600;
+  color: var(--soft);
+}
+
+/* ---- motion -------------------------------------------------------------- */
+
+.tm-pop {
+  animation: tm-pop 0.4s cubic-bezier(0.2, 1.4, 0.4, 1) both;
+}
+
+.tm-rise {
+  animation: tm-rise 0.5s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+  animation-delay: var(--d, 0ms);
+}
+
+@keyframes tm-pop {
+  from {
+    opacity: 0;
+    transform: scale(0.6);
+  }
+}
+
+@keyframes tm-rise {
+  from {
+    opacity: 0;
+    transform: translateY(18%);
+  }
+}
+
+@keyframes tm-land {
+  40% {
+    transform: scale(1.025);
+  }
+}
+
+/* the right answer, as it is shown: three flashes, then it settles */
+@keyframes tm-flash {
+  50% {
+    background: var(--t-correct);
+  }
+}
+
+/* the answer's marker, dropping onto the number line */
+@keyframes tm-drop {
+  from {
+    transform: scaleY(0);
+  }
+}
+
+/* a pinned option that is right, or that led the poll */
+@keyframes tm-pin-flash {
+  50% {
+    background: color-mix(in srgb, var(--t-correct) 55%, transparent);
+  }
+}
+
+@keyframes tm-pin-lead {
+  50% {
+    background: color-mix(in srgb, var(--t-accent) 55%, transparent);
+  }
+}
+
+/* the winner's step, as it is uncovered */
+@keyframes tm-crown {
+  50% {
+    background: #fff;
+    color: var(--t-accent-text, var(--t-accent));
+  }
+}
+
+@keyframes tm-beat {
+  50% {
+    transform: scale(1.14);
+    color: var(--t-accent-text, var(--t-accent));
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tm *,
+  .tm *::before,
+  .tm *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+
+/* ---- type the answer ------------------------------------------------------ */
+
+.tm-typed {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2.4cqh;
+}
+
+/* while it is open: nothing typed shows, only where to type */
+.tm-typed-wait {
+  flex: 1;
+  min-height: 0;
+  display: grid;
+  place-items: center;
+  text-align: center;
+  background: var(--t-card);
+  color: var(--t-card-text);
+  border-radius: var(--r);
+}
+
+.tm-typed-wait > span {
+  display: block;
+  padding: 0 4cqw;
+  font-size: 7cqh;
+  font-weight: var(--t-weight, 700);
+  line-height: 1.1;
+  text-transform: var(--t-case, uppercase);
+  opacity: 0.8;
+}
+
+.tm-phase-locking .tm-typed-wait {
+  opacity: 0.6;
+}
+
+/* the reveal: the answer, then what the room typed */
+.tm-typed-top {
+  flex: 0 0 auto;
+  max-height: 36%;
+  min-height: 15cqh;
+  display: flex;
+  align-items: center;
+  gap: 2cqw;
+  padding: 1.4cqh 2.4cqw;
+  background: color-mix(in srgb, var(--t-correct) 30%, var(--t-card));
+  color: var(--t-card-text);
+  border-radius: var(--r);
+  box-shadow: inset 0 0 0 0.55cqh var(--t-correct);
+  animation: tm-land 0.5s cubic-bezier(0.2, 1.3, 0.4, 1);
+}
+
+.tm-typed-answer {
+  flex: 1;
+  min-width: 0;
+  max-height: 100%;
+}
+
+.tm-typed-answer > span {
+  display: block;
+  font-size: 10cqh;
+  font-weight: 800;
+  line-height: 1.05;
+  text-transform: var(--t-case, uppercase);
+  overflow-wrap: anywhere;
+}
+
+.tm-typed-got {
+  flex: 0 0 auto;
+  font-size: 4.4cqh;
+  font-weight: 700;
+  white-space: nowrap;
+  opacity: 0.85;
+}
+
+.tm-typed .tm-opts {
+  flex: 1;
+}
+
+/* ---- Pop Quiz's own look: an ink outline and a hard shadow on every card ---- */
+
+.tm[data-edged] :is(.tm-opt, .tm-typed-wait, .tm-row, .tm-card) {
+  box-shadow: inset 0 0 0 0.45cqh var(--t-edge), 0.8cqh 0.8cqh 0 var(--t-edge);
+}
+
+.tm[data-edged] :is(.tm-opt.tm-right, .tm-typed-top) {
+  box-shadow: inset 0 0 0 0.55cqh var(--t-edge), 1cqh 1cqh 0 var(--t-edge);
+}
+
+/* a wrong answer steps back: no shadow, just its outline */
+.tm[data-edged] .tm-opt.tm-wrong {
+  box-shadow: inset 0 0 0 0.45cqh var(--t-edge);
+}
+
+.tm[data-edged] .tm-opt.tm-right .tm-opt-letter {
+  color: var(--t-on-correct, #0b0b0b);
+}
+
+/* ---- open answer: a wall of cards ------------------------------------------ */
+
+.tm-open {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1.4cqh;
+}
+
+.tm-wall {
+  flex: 1;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: repeat(var(--cols, 1), minmax(0, 1fr));
+  grid-template-rows: repeat(var(--rows, 1), minmax(0, 1fr));
+  gap: 1.6cqh 1.2cqw;
+}
+
+.tm-card {
+  min-width: 0;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 0.6cqh;
+  padding: 1.2cqh 1.6cqw;
+  background: var(--t-card);
+  color: var(--t-card-text);
+  border-radius: var(--r);
+  overflow: hidden;
+}
+
+.tm-card > span {
+  display: block;
+  font-size: 6cqh;
+  font-weight: var(--t-weight, 700);
+  line-height: 1.12;
+  overflow-wrap: anywhere;
+}
+
+.tm-card > small {
+  font-size: 3cqh;
+  font-weight: 700;
+  opacity: 0.65;
+}
+
+.tm-card.tm-pop {
+  animation: tm-land 0.45s cubic-bezier(0.2, 1.3, 0.4, 1);
+}
+
+.tm-hideable .tm-card {
+  pointer-events: auto;
+  cursor: pointer;
+}
+
+.tm-hideable .tm-card:hover {
+  outline: 0.5cqh solid var(--t-accent);
+}
+
+.tm-wall-more {
+  flex: 0 0 auto;
+  font-size: 3.4cqh;
+  font-weight: 700;
+  text-align: right;
+  opacity: 0.7;
+}
+
+.tm-wall-more:empty {
+  display: none;
+}

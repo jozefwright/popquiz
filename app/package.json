@@ -1,0 +1,9 @@
+{
+  "name": "tally-site",
+  "private": true,
+  "type": "module",
+  "description": "The public half of Tally: the phone page, the fallback player, and the shared copy of each deck's quiz (api/deck.js). Installed by Vercel at deploy time; nothing here is needed to load the extension.",
+  "dependencies": {
+    "@vercel/blob": "^2.8.1"
+  }
+}

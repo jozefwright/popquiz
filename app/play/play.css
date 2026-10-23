@@ -1,0 +1,224 @@
+@import url('../vendor/fonts.css');
+
+html,
+body {
+  margin: 0;
+  height: 100%;
+  overflow: hidden;
+  background: #000;
+  color: #fff;
+  font-family: 'Figtree', system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+#show {
+  position: fixed;
+  inset: 0;
+  cursor: default;
+}
+
+#slide {
+  position: absolute;
+  background: #1b1b1b;
+  overflow: hidden;
+}
+
+#page {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+/* Stand-in slides, drawn when there is no PDF. */
+#mock {
+  position: absolute;
+  inset: 0;
+  container-type: size;
+  padding: 7cqh 6cqw;
+  background: #ffffff;
+}
+
+#mock h2 {
+  margin: 0;
+  max-width: 88cqw;
+  font-size: 8.6cqh;
+  font-weight: 900;
+  line-height: 0.96;
+  letter-spacing: -0.02em;
+  color: #1a1a1a;
+  text-wrap: balance;
+}
+
+#mock p {
+  margin: 3cqh 0 0;
+  font-size: 3.4cqh;
+  font-weight: 500;
+  color: rgba(26, 26, 26, 0.62);
+}
+
+#mock .num {
+  position: absolute;
+  right: 3cqw;
+  bottom: 3cqh;
+  font-size: 2.4cqh;
+  font-weight: 700;
+  color: rgba(26, 26, 26, 0.4);
+}
+
+#stage {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border: 0;
+  background: transparent;
+  pointer-events: none;
+  color-scheme: normal;
+}
+
+#chrome {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  justify-content: space-between;
+  padding: 8px 14px;
+  font-size: 12px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.45);
+  opacity: 0;
+  transition: opacity 0.3s;
+  pointer-events: none;
+}
+
+#show.nudge #chrome {
+  opacity: 1;
+}
+
+/* ---- setup --------------------------------------------------------------- */
+
+dialog {
+  width: min(560px, calc(100vw - 32px));
+  max-height: calc(100vh - 32px);
+  padding: 0;
+  color: #fff;
+  background: #1c1c1c;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 18px;
+  overflow: auto;
+}
+
+dialog::backdrop {
+  background: rgba(0, 0, 0, 0.72);
+}
+
+#setup-form {
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+  padding: 30px;
+}
+
+dialog h1 {
+  margin: 0;
+  font-size: 34px;
+  font-weight: 900;
+  line-height: 1;
+  text-transform: uppercase;
+  color: #f9ab00;
+}
+
+dialog h2 {
+  margin: 0 0 4px;
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+dialog p {
+  margin: 0 0 10px;
+  font-size: 15px;
+  line-height: 1.4;
+  color: rgba(255, 255, 255, 0.62);
+}
+
+dialog p.lede {
+  margin: -10px 0 0;
+}
+
+.file {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.file input {
+  font: inherit;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.actions {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+button {
+  font: inherit;
+  cursor: pointer;
+}
+
+.go {
+  padding: 14px 28px;
+  font-size: 16px;
+  font-weight: 900;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #1a1a1a;
+  background: #f9ab00;
+  border: 0;
+  border-radius: 12px;
+}
+
+.quiet {
+  padding: 10px 14px;
+  font-size: 14px;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.8);
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 10px;
+}
+
+#room-state b {
+  color: #fff;
+  letter-spacing: 0.1em;
+}
+
+.row {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.row input {
+  flex: 1;
+  min-width: 0;
+  padding: 10px 12px;
+  font: inherit;
+  font-size: 14px;
+  color: #fff;
+  background: #111;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 10px;
+}
+
+.or {
+  font-size: 12px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.45);
+}

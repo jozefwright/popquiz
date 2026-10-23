@@ -1,0 +1,43 @@
+# Pop Quiz's relay. See README.md beside this file for running it locally and
+# for what a deploy needs. No account_id here on purpose: wrangler takes it
+# from whoever is logged in, so nothing in the repo points at an account.
+name = "popquiz-relay"
+main = "src/index.js"
+compatibility_date = "2026-10-15"
+workers_dev = false
+# popquiz.fun's DNS is on the same Cloudflare account (Cloudflare Registrar).
+routes = [{ pattern = "relay.popquiz.fun", custom_domain = true }]
+
+# One Durable Object per room. The free plan only offers the SQLite-backed
+# kind, hence new_sqlite_classes; the relay never writes to it.
+[[durable_objects.bindings]]
+name = "ROOMS"
+class_name = "Room"
+
+[[migrations]]
+tag = "v1"
+new_sqlite_classes = ["Room"]
+
+[vars]
+# Pages allowed to open a socket. Comma-separated; `*` matches anything.
+# The phone page's home (play.popquiz.fun), the site, the workers.dev preview
+# copies, Tally's old Vercel home for installs not yet updated, and the
+# extension, whose id differs per machine while it is loaded unpacked.
+# Local addresses are for `npm run try` and the tests on a laptop and its
+# Wi-Fi. `.dev.vars` makes this `*` under wrangler dev.
+ALLOWED_ORIGINS = "https://play.popquiz.fun,https://popquiz.fun,https://www.popquiz.fun,https://*.workers.dev,https://tally-quiz.vercel.app,chrome-extension://*,http://localhost:*,http://127.0.0.1:*,http://192.168.*,http://10.*"
+# Who hears a phone: "presenter" (the presenter only) or "all" (every other
+# socket, as Supabase broadcast does). See audience() in src/rules.js.
+ROUTE = "presenter"
+
+# New connections per address per minute (see fetch() in src/index.js). An
+# office of 150 behind one address, all reconnecting twice, still fits.
+[[ratelimits]]
+name = "JOINS"
+namespace_id = "1001"
+simple = { limit = 600, period = 60 }
+
+# Anonymous counting, off until wanted. See count() in src/index.js.
+# [[analytics_engine_datasets]]
+# binding = "STATS"
+# dataset = "popquiz_relay"

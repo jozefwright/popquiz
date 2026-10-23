@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <link rel="icon" type="image/svg+xml" href="../icons/mark-small.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#f9ab00" />
+    <meta name="description" content="Play a live Pop Quiz round on your phone: the big screen runs itself, six pretend players join you, and the podium is revealed at the end." />
+    <title>Pop Quiz live demo</title>
+    <link rel="stylesheet" href="../vendor/fonts.css" />
+    <link rel="stylesheet" href="demo.css" />
+  </head>
+  <body>
+    <header class="top">
+      <a class="logo" href="https://popquiz.fun/"><img src="../icons/mark-small.svg" alt="" width="28" height="28" />Pop Quiz</a>
+      <span class="tag">Live demo</span>
+    </header>
+    <main>
+      <section class="big" aria-label="The big screen">
+        <p class="label">The big screen</p>
+        <div id="screen">
+          <iframe id="stage" title="The big screen: a Pop Quiz slide" allowtransparency="true"></iframe>
+        </div>
+        <p id="status" role="status">Setting up the room…</p>
+        <div class="scan">
+          <p><b>Grab your phone.</b> Scan the code on the screen with its camera, pick a nickname and play against six pretend players. The questions, the clock and the podium run on this screen; you answer on your phone, as in a real game.</p>
+          <p class="alt">No phone handy? <a href="?mode=here">Play on this screen instead</a>.</p>
+        </div>
+        <div id="again" hidden>
+          <p><b>That’s Pop Quiz.</b> Your team gets this, on your own Google Slides deck, free. Install it from a laptop at <a href="https://popquiz.fun/">popquiz.fun</a>.</p>
+          <p class="for-screen">Playing again opens a new room: scan the new code.</p>
+          <button type="button">Play again</button>
+        </div>
+      </section>
+      <section class="hand" aria-label="Your phone">
+        <p class="label">Your phone</p>
+        <div class="frame"><iframe id="phone" title="Your phone: answer here"></iframe></div>
+      </section>
+    </main>
+    <footer class="note"><span class="for-here">A practice room in your browser, with six pretend players. Nothing you type leaves this page.</span><span class="for-screen">A live demo room with six pretend players. Your phone joins over the internet, as in a real game; nickname and answers pass through Pop Quiz's relay, which keeps nothing.</span></footer>
+    <script type="module" src="demo.js"></script>
+  </body>
+</html>

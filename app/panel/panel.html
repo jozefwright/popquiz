@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <link rel="icon" type="image/svg+xml" href="../icons/mark-small.svg">
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Pop Quiz</title>
+    <link rel="stylesheet" href="../stage/modules.css" />
+    <link rel="stylesheet" href="panel.css" />
+  </head>
+  <body>
+    <header>
+      <div class="brand"><img src="../icons/mark-small.svg" alt="" width="26" height="26" />Pop Quiz</div>
+      <div id="deck-title"></div>
+    </header>
+    <nav id="tabs" role="tablist">
+      <button type="button" id="tab-slide" role="tab" aria-selected="true" aria-controls="view-slide">Slide</button>
+      <button type="button" id="tab-quiz" role="tab" aria-selected="false" aria-controls="view-quiz">Quiz<span class="badge" hidden></span></button>
+      <button type="button" id="tab-present" role="tab" aria-selected="false" aria-controls="view-present">Present</button>
+    </nav>
+
+    <div id="update" hidden></div>
+
+    <div id="notice" hidden>
+      <h2>Open a Google Slides deck</h2>
+      <p>Pop Quiz works on the deck in this tab. If a deck is already open here, reload its page once so Pop Quiz can see it.</p>
+    </div>
+
+    <div id="presenting" hidden>
+      <h2>Slideshow running</h2>
+      <p>Pop Quiz is out of the way until it ends, so nothing in here (the right answers least of all) shows if this window is on the screen.</p>
+    </div>
+
+    <main>
+      <div id="view-slide" role="tabpanel" aria-labelledby="tab-slide">
+        <div id="fix-chip" hidden></div>
+        <section id="preview-wrap">
+          <div id="preview">
+            <div id="preview-shapes"></div>
+            <div id="preview-module"></div>
+          </div>
+          <div id="preview-bar"></div>
+        </section>
+        <section id="slide-pane" class="pane"></section>
+      </div>
+      <div id="view-quiz" role="tabpanel" aria-labelledby="tab-quiz" hidden>
+        <section id="quiz-pane" class="pane"></section>
+        <section id="deck-pane" class="pane"></section>
+      </div>
+      <div id="view-present" role="tabpanel" aria-labelledby="tab-present" hidden>
+        <section id="present-pane" class="pane"></section>
+      </div>
+    </main>
+
+    <script type="module" src="panel.js"></script>
+  </body>
+</html>

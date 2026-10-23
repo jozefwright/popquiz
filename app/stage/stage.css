@@ -1,0 +1,59 @@
+/* The stage is a transparent sheet laid over the slide. It never takes a
+   click or a key press: the slideshow underneath stays in charge. */
+
+/* The stage must share its host's colour scheme. An iframe whose scheme
+   differs from the page around it is given an opaque backdrop, which would
+   black out the slide. */
+:root {
+  color-scheme: normal;
+}
+
+html,
+body {
+  margin: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: transparent;
+  pointer-events: none;
+  user-select: none;
+}
+
+#slide {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+}
+
+#module {
+  position: absolute;
+  opacity: 0;
+  transition: opacity 0.25s;
+}
+
+#module.on {
+  opacity: 1;
+}
+
+/* Relay health, for the presenter only. Invisible while all is well. */
+#hud {
+  position: absolute;
+  left: 1.2%;
+  bottom: 1.6%;
+  padding: 0.5em 0.9em;
+  font: 600 clamp(11px, 1.3vw, 18px) / 1 'Figtree', system-ui, sans-serif;
+  color: #fff;
+  background: rgba(190, 40, 20, 0.92);
+  border-radius: 99em;
+}
+
+#hud[data-level='soft'] {
+  background: rgba(20, 20, 20, 0.7);
+}
+
+#hud[data-level='practice'] {
+  color: #17171a;
+  background: rgba(255, 196, 0, 0.95);
+}

@@ -1,0 +1,16 @@
+// play.popquiz.fun: the phone page players join at, the public demo, the
+// install script and the files the panel checks (version.json, files.txt,
+// slides-map.json). It serves app/ as static files. Deploy from this folder:
+//   npx wrangler deploy
+// app/.assetsignore keeps the Vercel leftovers out.
+{
+  "name": "popquiz-play",
+  "compatibility_date": "2026-10-15",
+  "assets": {
+    "directory": "../../app",
+    "not_found_handling": "none",
+    "html_handling": "auto-trailing-slash"
+  },
+  "workers_dev": false,
+  "routes": [{ "pattern": "play.popquiz.fun", "custom_domain": true }]
+}

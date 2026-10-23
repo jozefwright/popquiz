@@ -1,0 +1,36 @@
+{
+  "name": "pop-quiz",
+  "private": true,
+  "version": "0.8.1",
+  "description": "Live quizzes and polls inside your own Google Slides deck. Chrome extension, phone page and relay.",
+  "type": "module",
+  "scripts": {
+    "vendor": "node scripts/vendor.mjs",
+    "serve": "node scripts/serve.mjs",
+    "test": "node --test \"test/*.test.mjs\"",
+    "test:relay": "node test/sim-live.mjs",
+    "test:extension": "node test/ext-e2e.mjs",
+    "test:player": "node test/play-pdf.mjs",
+    "test:public": "node test/public-e2e.mjs",
+    "shots:phone": "node test/phone-shots.mjs",
+    "test:soak": "node test/soak.mjs",
+    "test:sync": "node test/sync-e2e.mjs",
+    "files": "node scripts/files.mjs",
+    "test:update": "node test/update-e2e.mjs",
+    "test:meet": "node test/meet-sim.mjs",
+    "try": "node scripts/try.mjs",
+    "relay": "cd relay && wrangler dev --ip 127.0.0.1 --port 8787",
+    "pack": "node scripts/pack.mjs",
+    "test:site": "node test/site-qa.mjs"
+  },
+  "devDependencies": {
+    "@supabase/realtime-js": "^2.11.0",
+    "esbuild": "^0.25.0",
+    "pdfjs-dist": "^4.10.38",
+    "playwright-core": "^1.63.0",
+    "qrcode-generator": "^1.4.4",
+    "wrangler": "^4.151.3"
+  },
+  "license": "MIT",
+  "homepage": "https://popquiz.fun"
+}

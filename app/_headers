@@ -1,0 +1,20 @@
+/*
+  Cache-Control: no-cache
+  X-Robots-Tag: noindex, nofollow
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: strict-origin-when-cross-origin
+
+/version.json
+  Access-Control-Allow-Origin: *
+
+/files.txt
+  Access-Control-Allow-Origin: *
+
+/slides-map.json
+  Access-Control-Allow-Origin: *
+
+/get/popquiz.sh
+  Access-Control-Allow-Origin: *
+
+/vendor/*
+  Cache-Control: public, max-age=86400
