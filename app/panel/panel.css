@@ -601,16 +601,19 @@ label.check {
 }
 
 .seg button {
-  flex: 1;
+  flex: 1 1 0;
+  min-width: 0;
   padding: 6px 4px;
   font: inherit;
   font-weight: 700;
+  line-height: 1.2;
   color: var(--soft);
   background: none;
   border: 0;
   border-radius: 6px;
   cursor: pointer;
-  white-space: nowrap;
+  /* Long labels take two lines rather than run off the panel. */
+  text-wrap: balance;
 }
 
 .seg button[aria-pressed='true'] {
@@ -931,7 +934,9 @@ details[open] > summary {
 }
 
 #preview-bar .seg button {
+  flex: none;
   padding: 6px 10px;
+  white-space: nowrap;
 }
 
 /* ---- the two tabs: this slide, and the deck's setup ----------------------------- */

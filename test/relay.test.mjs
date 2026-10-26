@@ -244,10 +244,10 @@ test('a socket that never opens is given up on and tried again', (ctx) => {
   ctx.after(() => mock.timers.reset());
   const { t } = rig();
   t.open('KXTR');
-  mock.timers.tick(10000);
+  mock.timers.tick(4900);
   assert.equal(t.status, 'connecting');
-  mock.timers.tick(10000);
-  assert.equal(t.status, 'down');
+  mock.timers.tick(200);
+  assert.equal(t.status, 'down', 'a hung handshake is given up on after five seconds, not a whole ping later');
   mock.timers.tick(2000);
   assert.equal(FakeSocket.made.length, 2);
   t.close();

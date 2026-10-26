@@ -41,9 +41,11 @@ function joinBase() {
   // With the local relay, messages never leave this browser, so the only
   // phone page that can hear them is the one served from here.
   if (relayMode === 'local' && location.protocol.startsWith('http')) return new URL('../', location.href).href;
+  // Pop Quiz's own join page wins: the relay only lets its own pages in, so an
+  // address typed into an older version could only break the QR code.
+  if (DEFAULT_JOIN_BASE) return DEFAULT_JOIN_BASE;
   if (deck.joinBase) return deck.joinBase;
   if (settings.joinBase) return settings.joinBase;
-  if (DEFAULT_JOIN_BASE) return DEFAULT_JOIN_BASE;
   if (location.protocol.startsWith('http')) return new URL('../', location.href).href;
   return '';
 }

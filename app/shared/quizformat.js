@@ -129,9 +129,18 @@ function shape(raw, n, fromJson) {
     let max = num(raw.max);
     if (min === null || max === null || max <= min) {
       // No range given: one around the answer, off-centre so the middle isn't it.
-      const span = Math.max(10, Math.abs(answer) * 0.5);
-      min = Math.floor(answer - span * 0.6);
-      max = Math.ceil(answer + span * 0.4);
+      // A year gets decades either side, never the future: half its value
+      // either side would ask whether Home Alone came out in 2388.
+      const thisYear = new Date().getFullYear();
+      if (Number.isInteger(answer) && answer >= 1000 && answer <= thisYear) {
+        min = answer - 50;
+        max = Math.min(thisYear, answer + 30);
+        if (max - answer < 10) min = answer - 70;
+      } else {
+        const span = Math.max(10, Math.abs(answer) * 0.5);
+        min = Math.floor(answer - span * 0.6);
+        max = Math.ceil(answer + span * 0.4);
+      }
     }
     Object.assign(q, { answer, min, max, step: num(raw.step) || (Number.isInteger(answer) ? 1 : 0.1) });
     if (raw.unit) q.unit = clip(raw.unit, LIMITS.unit);

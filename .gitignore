@@ -6,3 +6,7 @@ test/.out/
 *.log
 .wrangler/
 dist/
+# The open-source copy, made by scripts/export-public.mjs: its own repo, pushed to jozefwright/popquiz.
+/public-repo/
+test/.scratch/
+site/public/files/*.zip

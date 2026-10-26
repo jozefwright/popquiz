@@ -203,6 +203,8 @@ export class RelayTransport {
 //   client did that for RelayTransport; a bare WebSocket does not, and a room
 //   that lost the Wi-Fi together must not come back in the same instant
 //   (docs/SLIDES.md, "What the relay taught us").
+const CONNECT_MS = 5000;
+
 export class CloudflareTransport {
   constructor({ url, presenter = false, WebSocket: WS = globalThis.WebSocket, pingMs = presenter ? 2000 : 10000, deadMs = presenter ? TIMING.echoMs : 25000, rand = Math.random }) {
     this.base = String(url || '').replace(/\/+$/, '');
@@ -297,14 +299,18 @@ export class CloudflareTransport {
     ws.onerror = () => {
       // Always followed by a close, which does the work.
     };
-    const began = Date.now();
-    this.watch = setInterval(() => {
-      if (gen !== this.generation) return;
-      if (this.status === 'connecting' && Date.now() - began > 10000) {
+    // A handshake that hangs (neither opens nor fails) is given up on after
+    // five seconds, whatever the ping interval: a phone stuck connecting
+    // misses the question on screen.
+    this.connectTimer = setTimeout(() => {
+      if (gen === this.generation && this.status === 'connecting') {
         this.trouble?.('no answer from the relay');
         this.down(gen);
-        return;
       }
+    }, CONNECT_MS);
+    this.watch = setInterval(() => {
+      if (gen !== this.generation) return;
+      if (this.status === 'connecting') return;
       if (this.status !== 'live') return;
       // Closed by the relay, but the connection never finished closing (a
       // room making space for a newcomer does this), so no close event came.
@@ -344,6 +350,7 @@ export class CloudflareTransport {
     const ws = this.ws;
     clearInterval(this.watch);
     clearTimeout(this.retry);
+    clearTimeout(this.connectTimer);
     this.watch = null;
     this.retry = null;
     this.ws = null;

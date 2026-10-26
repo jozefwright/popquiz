@@ -589,7 +589,7 @@ function drawEditorPreview() {
   if (packed !== previewSent) {
     previewSent = packed;
     const now = Date.now();
-    preview.module.setContext({ joinBase: deck.joinBase || DEFAULT_JOIN_BASE, joinHint: deck.showJoin, slideFill: t.fill, now: () => now });
+    preview.module.setContext({ joinBase: DEFAULT_JOIN_BASE || deck.joinBase, joinHint: deck.showJoin, slideFill: t.fill, now: () => now });
     preview.module.update(mockView(deck, t.cfg, { phase: ui.previewPhase, slideId: t.slideId, now }));
     preview.module.tick(now);
     preview.module.refit();
@@ -809,7 +809,7 @@ function drawThumbs() {
       item.packed = packed;
       item.size = size;
       const now = Date.now();
-      item.module.setContext({ joinBase: deck.joinBase || DEFAULT_JOIN_BASE, joinHint: deck.showJoin, slideFill: fillOf(bg), now: () => now });
+      item.module.setContext({ joinBase: DEFAULT_JOIN_BASE || deck.joinBase, joinHint: deck.showJoin, slideFill: fillOf(bg), now: () => now });
       item.module.update(mockView(deck, cfg, { phase: ui.previewPhase, slideId, now }));
       item.module.tick(now);
       item.module.refit();

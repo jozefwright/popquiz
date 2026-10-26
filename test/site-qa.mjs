@@ -54,7 +54,9 @@ for (const [view, opts] of Object.entries(VIEWS)) {
     const page = await ctx.newPage();
     const errors = [];
     page.on('pageerror', (e) => errors.push(e.message));
-    page.on('console', (m) => m.type() === 'error' && !/status of 404/.test(m.text()) && errors.push(m.text()));
+    // The analytics counter can't report from a local copy (its server only
+    // accepts popquiz.fun): that one isn't the site's fault.
+    page.on('console', (m) => m.type() === 'error' && !/status of 404|cloudflareinsights|ERR_FAILED/.test(m.text()) && errors.push(m.text()));
     const res = await page.goto(BASE + p, { waitUntil: 'networkidle' });
     const want = p.includes('does-not-exist') ? 404 : 200;
     if (res.status() !== want) flag(`${p} (${view})`, `status ${res.status()}, expected ${want}`);
@@ -118,14 +120,17 @@ for (const [view, opts] of Object.entries(VIEWS)) {
     try {
       if (p === '/') {
         if (view === 'laptop') {
-          for (const kind of ['poll', 'cloud', 'open', 'quiz']) {
+          const kinds = await page.$$eval('.chips button[data-kind]', (bs) => bs.map((b) => b.dataset.kind));
+          for (const kind of [...kinds.slice(1), kinds[0]]) {
             await page.click(`.chips button[data-kind="${kind}"]`);
             if (!(await page.isVisible(`.view[data-view="${kind}"]`))) flag(p, `chip ${kind} doesn't show its slide`);
+            if (!(await page.isVisible(`[data-phones="${kind}"]`))) flag(p, `chip ${kind} doesn't show its phones`);
+            if ((await page.getAttribute(`.chips button[data-kind="${kind}"]`, 'aria-pressed')) !== 'true') flag(p, `chip ${kind} isn't marked pressed`);
           }
           await page.click('.switch button[data-after="0"]');
           if (!(await page.isVisible('.view[data-view="before"]'))) flag(p, 'Before switch does nothing');
           await page.click('.switch button[data-after="1"]');
-          ok('home: Before / With switch and all four chips');
+          ok(`home: Before / With switch and all ${kinds.length} chips`);
           await page.click('.srcs summary');
           if (!(await page.isVisible('.srcs-grid'))) flag(p, 'Sources does not open');
           else ok('home: comparison Sources opens');
@@ -135,6 +140,14 @@ for (const [view, opts] of Object.entries(VIEWS)) {
         await faq.locator('summary').click();
         if (!(await faq.evaluate((d) => d.open))) flag(`${p} (${view})`, 'FAQ item does not open');
         else ok(`home (${view}): FAQ opens`);
+        if (view === 'phone') {
+          const row = page.locator('.compare-mini .mrow').first();
+          const id = await row.getAttribute('aria-controls');
+          if (await page.isVisible(`#${id}`)) flag(`${p} (${view})`, 'comparison detail shows before a tap');
+          await row.click();
+          if (!(await page.isVisible(`#${id}`))) flag(`${p} (${view})`, 'comparison row does not open its detail');
+          else ok(`home (${view}): comparison row opens its detail`);
+        }
         await page.click('a[href="#see-it-work"]');
         await page.waitForTimeout(400);
         const top = await page.$eval('#see-it-work', (e) => e.getBoundingClientRect().top);

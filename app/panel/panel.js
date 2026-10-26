@@ -301,7 +301,7 @@ function drawPreview() {
   }
   const p = cfg.place;
   Object.assign($mod.style, { left: `${p.x * 100}%`, top: `${p.y * 100}%`, width: `${p.w * 100}%`, height: `${p.h * 100}%` });
-  previewModule.setContext({ joinBase: deck.joinBase || DEFAULT_JOIN_BASE, joinHint: deck.showJoin, slideFill });
+  previewModule.setContext({ joinBase: DEFAULT_JOIN_BASE || deck.joinBase, joinHint: deck.showJoin, slideFill });
   previewModule.update(mockView(deck, cfg, { phase: previewPhase, room: session?.room || 'KXTR', slideId: slideId() }));
   previewModule.refit();
   fill(
@@ -527,7 +527,7 @@ function firstRun() {
       'To run a game, Pop Quiz sends your questions, and the nicknames players type, through its relay to the players’ phones. The relay passes them on and keeps nothing. Your quiz itself stays in Chrome on this computer. ',
       h('a', { href: new URL('privacy/', SITE).href, target: '_blank', rel: 'noopener', text: 'Privacy policy' }),
     ),
-    h('p', { class: 'hint', text: 'Pick a look and where phones join now, or later in the Quiz tab.' }),
+    h('p', { class: 'hint', text: DEFAULT_JOIN_BASE ? 'Pick a look now, or later in the Quiz tab.' : 'Pick a look and where phones join now, or later in the Quiz tab.' }),
     h(
       'div',
       { class: 'presets mini' },
@@ -535,7 +535,8 @@ function firstRun() {
         h('button', { type: 'button', class: 'preset', 'aria-pressed': String(same(p)), onclick: () => { patchTheme((t) => Object.assign(t, p.theme)); drawSlide(true); } }, h('span', { class: 'chips' }, h('i', { style: `background:${p.theme.accent}` }), h('i', { style: `background:${p.theme.card}` }), h('i', { style: `background:${p.theme.correct}` })), h('span', { text: p.name })),
       ),
     ),
-    field(
+    // Only a build without its own join page asks where phones go.
+    DEFAULT_JOIN_BASE ? null : field(
       'Phones join at',
       h('input', {
         type: 'url',
@@ -696,7 +697,7 @@ function essentials(cfg) {
     return [
       field('Headline', h('input', { type: 'text', value: cfg.headline, maxlength: '80', oninput: (e) => patch((c) => (c.headline = e.target.value)) })),
       h('p', { class: 'hint', text: 'Shows the game code and a QR code. People scan it, or type the address and the code.' }),
-      deck.joinBase || DEFAULT_JOIN_BASE ? null : h('div', { class: 'card' }, h('b', { text: 'No join address yet.' }), ' Set it in the Quiz tab, under Joining, or the QR code cannot be drawn.'),
+      DEFAULT_JOIN_BASE || deck.joinBase ? null : h('div', { class: 'card' }, h('b', { text: 'No join address yet.' }), ' Set it in the Quiz tab, under Joining, or the QR code cannot be drawn.'),
     ];
   }
   if (cfg.kind === 'leaderboard') {
@@ -773,7 +774,7 @@ function moreBody(cfg) {
     ),
     part('While it runs'),
     choice && cfg.type !== 'poll' ? group('While they vote', seg([['count', 'How many have answered'], ['tally', 'Live split']], cfg.live, (v) => patch((c) => (c.live = v), true))) : null,
-    cfg.type === 'num' ? group('While they guess', seg([['count', 'How many have guessed'], ['tally', 'The guesses, as they come']], cfg.live, (v) => patch((c) => (c.live = v), true)), h('p', { class: 'hint', text: 'Showing the guesses as they come lets the room follow the crowd. Keeping them back makes it a real guess.' })) : null,
+    cfg.type === 'num' ? group('While they guess', seg([['count', 'Just the count'], ['tally', 'Every guess, live']], cfg.live, (v) => patch((c) => (c.live = v), true)), h('p', { class: 'hint', text: 'Showing the guesses as they come lets the room follow the crowd. Keeping them back makes it a real guess.' })) : null,
     cfg.type === 'rank' ? group('While they answer', seg([['count', 'How many have answered'], ['tally', 'The running totals']], cfg.live, (v) => patch((c) => (c.live = v), true))) : null,
     cfg.type === 'open'
       ? group(
@@ -1240,7 +1241,7 @@ async function checkForNewer() {
   // where the plugin is fetched from too.
   let site = null;
   try {
-    site = new URL('version.json', deck?.joinBase || DEFAULT_JOIN_BASE).href;
+    site = new URL('version.json', DEFAULT_JOIN_BASE || deck?.joinBase).href;
   } catch {}
   const [onDisk, out] = await Promise.all([read(chrome.runtime.getURL('manifest.json')), site ? read(site) : null]);
   const key = `${running}|${onDisk}|${out}|${!!editor?.presenting}`;
@@ -1436,7 +1437,7 @@ function drawPresent() {
   }
   const players = session ? Object.keys(session.players || {}).length : 0;
   const played = session ? Object.values(session.q || {}).filter((q) => q.status === 'closed').length : 0;
-  const site = siteOf(deck.joinBase || DEFAULT_JOIN_BASE);
+  const site = siteOf(DEFAULT_JOIN_BASE || deck.joinBase);
   fill(
     $pane,
     h('h2', { text: 'Present' }),
@@ -1455,7 +1456,7 @@ function drawPresent() {
           class: 'btn primary',
           text: 'Copy the join link, for a video call',
           onclick: async () => {
-            const link = joinUrl(deck.joinBase || DEFAULT_JOIN_BASE, session.room);
+            const link = joinUrl(DEFAULT_JOIN_BASE || deck.joinBase, session.room);
             try {
               await navigator.clipboard.writeText(link);
               toast(`Copied: ${link}`);
@@ -1561,7 +1562,7 @@ function drawDeck() {
   const $pane = $('deck-pane');
   if (view !== 'quiz' || !deck) return;
   const joins = Object.values(deck.slides).filter((s) => s.kind === 'join');
-  const site = siteOf(deck.joinBase || DEFAULT_JOIN_BASE);
+  const site = siteOf(DEFAULT_JOIN_BASE || deck.joinBase);
   fill(
     $pane,
     h('h2', { text: 'For the whole deck' }),
@@ -1575,7 +1576,7 @@ function drawDeck() {
       `${site ? `Phones go to ${site}` : 'No join address'} · ${deck.showJoin ? 'code on every question' : 'code on the join screen only'}`,
       !site,
       h('p', { class: 'hint', text: joins.length ? 'People scan the QR code on your join screen, or type the address and code shown there.' : 'Add a Join screen near the start of the deck too: it shows the QR code and the code.' }),
-    field(
+    DEFAULT_JOIN_BASE ? null : field(
       'Join address',
       h('input', {
         type: 'url',
@@ -1587,7 +1588,7 @@ function drawDeck() {
           store.set(KEYS.settings, { joinBase: deck.joinBase });
         },
       }),
-      DEFAULT_JOIN_BASE ? `The page the QR code opens. Leave it empty to use ${DEFAULT_JOIN_BASE.replace(/^https?:\/\//, '').replace(/\/$/, '')}.` : 'The page the QR code opens. Set once; every deck remembers it.',
+      'The page the QR code opens. Set once; every deck remembers it.',
     ),
     h('label', { class: 'check' }, h('input', { type: 'checkbox', checked: deck.showJoin, onchange: (e) => { deck.showJoin = e.target.checked; save(); drawPreview(); } }), 'Show the join address and code on every question, for latecomers'),
     ),
