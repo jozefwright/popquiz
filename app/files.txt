@@ -7,15 +7,15 @@ a55e826b78d517ac76044f8770d2b6c5d401f127  demo/index.html
 5147564f732cc5a6c8498040bb7c88579a4daf19  ext/host.js
 0cff5169c373e1dc4ceab5ab08493cd8677583de  ext/notes-keys.js
 9532d70bbd188685f04306c4b736e86a61c93dec  icons/128.png
-f4528ad75a82dae8c80cc630d6687e5cb1aaa363  icons/16.png
-cfc75baf6a220adc0129efd484f4b9494c619861  icons/32.png
-e8887e375f01627584e613b71767d2fd2328d3f0  icons/48.png
+8bec74d92b4e0769290ba4945b5218eef0cd81bc  icons/16.png
+1066e44869335fc7d062491232601f426376cfa7  icons/32.png
+4d940d425f180a329a1ddcc3f0decd6a252874db  icons/48.png
 61ba3b6585a4180e94f009ff7bbb89746b8f0b49  icons/mark-medium.svg
 0c28f2a541859744dd01d8f23eeed4b5ead10b10  icons/mark-small.svg
 efb4b1df94c538810be25eccb699c20e53f46048  icons/mark.svg
 ee8d5ab3c5b405e08b0cb3c7de9347b685151089  icons/toolbar.svg
 a3a12240b6c76d2d316fcbcf273b991b1d814cdd  index.html
-ffe5467c587a3213c349ed55230a2557c6c4c9ea  manifest.json
+d8ab2ea2612f1d7ca4aa199afc166535ebb3eb07  manifest.json
 922a0f1bbf3f52724e29de568e1562f6d186cb55  panel/icons.js
 b661405969944efea7652a5234de6446c0f27aad  panel/panel.css
 888bd36b67d16556889480e34316d021b2d76757  panel/panel.html
@@ -59,4 +59,4 @@ f548e26b904b2610121b2dd0cee75d8691d50617  vendor/pdf.min.mjs
 8860b503944aad2d09b9b94ee56e4fab8414ca69  vendor/pdf.worker.min.mjs
 c798baf3f8161434be33e33312e0849be69ed265  vendor/qrcode.js
 1a6b56f9f13babcd86c5ab6d985de2e6df1d8b62  vendor/realtime.js
-5ed88990c283153e0d777addbbfb66c8e89072aa  version.json
+1a66211237e03de1e7e65f5f9be14828623474c2  version.json

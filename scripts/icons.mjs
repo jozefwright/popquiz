@@ -1,5 +1,6 @@
 // Draws the extension's PNG icons from the mark's SVGs (BRAND.md): the shape
-// itself on a transparent ground, the detail dropping away as it gets small.
+// itself on a transparent ground, the full drawing at every size: the same
+// mark the browser tab shows from mark.svg (Jozef's call, 26 October).
 //   CHROMIUM=... node scripts/icons.mjs
 import { chromium } from 'playwright-core';
 import { readFile } from 'node:fs/promises';
@@ -8,7 +9,7 @@ import { fileURLToPath } from 'node:url';
 
 const icons = path.join(path.dirname(fileURLToPath(import.meta.url)), '..', 'app', 'icons');
 // size -> which drawing, and how much clear space around it
-const SIZES = { 16: ['mark-small', 0], 32: ['mark-small', 1], 48: ['mark-medium', 2], 128: ['mark', 8] };
+const SIZES = { 16: ['mark', 0], 32: ['mark', 1], 48: ['mark', 2], 128: ['mark', 8] };
 const browser = await chromium.launch({ executablePath: process.env.CHROMIUM, headless: true });
 const page = await browser.newPage({ deviceScaleFactor: 1 });
 for (const [size, [name, pad]] of Object.entries(SIZES)) {

@@ -55,6 +55,8 @@ The browser tests (`npm run test:extension`, `npm run test:player` and others) d
 
 The code is MIT-licensed: use it, change it, ship it. The **Pop Quiz** name and the starburst logo are not part of that licence. If you publish your own version, give it your own name and look, so nobody mistakes it for this one.
 
+The fonts in `app/vendor/` are under the SIL Open Font Licence; the licence files sit beside them.
+
 ## Security
 
 Found a way to read someone else's game, get past the relay's limits or misuse the extension? Please email **hello@popquiz.fun** rather than opening a public issue. See `SECURITY.md`.
